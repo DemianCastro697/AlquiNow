@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel del anfitrión — AlquiNow</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="nav">
+    <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">Alqui<span>Now</span></a></div>
+    <nav class="nav-links">
+    </nav>
+  </header>
+
+  <main class="contenedor" style="max-width:720px;">
+    <h1 style="margin-bottom:.3rem;">Publicar una propiedad</h1>
+    <p style="color:var(--gris);">Completá los datos y publicala al instante.</p>
+    <div id="msg"></div>
+
+    <div class="form-box" style="max-width:none; margin-top:1rem;">
+      <label>Calle</label>
+      <input type="text" id="calle">
+
+      <label>Altura</label>
+      <input type="number" id="altura">
+
+      <label>Ciudad</label>
+      <input type="text" id="ciudad">
+
+      <label>Provincia</label>
+      <select id="provincia">
+        <option>Buenos Aires</option>
+        <option>CABA</option>
+        <option>Córdoba</option>
+        <option>Mendoza</option>
+        <option>Neuquén</option>
+        <option>Río Negro</option>
+        <option>Santa Fe</option>
+      </select>
+
+      <label>Precio por noche ($)</label>
+      <input type="number" id="precio_por_noche" step="0.01">
+
+      <label>Capacidad (personas)</label>
+      <input type="number" id="cant_personas">
+
+      <label>Metros cuadrados</label>
+      <input type="number" id="metros_cuadrados">
+
+      <label>Descripción</label>
+      <textarea id="descripcion" rows="3"></textarea>
+
+      <label style="display:flex; align-items:center; gap:.5rem; margin-top:1rem;">
+        <input type="checkbox" id="disponibilidad_inmediata" style="width:auto;">
+        Disponible de inmediato
+      </label>
+
+      <button class="btn btn-block" onclick="publicar()">Publicar propiedad</button>
+    </div>
+
+    <!-- SECCIÓN NUEVA: MIS ANUNCIOS ACTIVOS -->
+    <section style="margin-top: 3rem;">
+      <h2 style="margin-bottom: 1.5rem;">Mis anuncios activos</h2>
+      <div id="mis-publicaciones" style="display: flex; flex-direction: column; gap: 1rem;">
+        <p style="color: var(--gris);">Cargando tus publicaciones...</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Cargar automáticamente las publicaciones al abrir el panel
+    document.addEventListener("DOMContentLoaded", () => {
+      cargarMisPropiedades();
+    });
+
+    function publicar() {
+      const body = new URLSearchParams();
+      const campos = ["calle","altura","ciudad","provincia","precio_por_noche",
+                      "cant_personas","metros_cuadrados","descripcion"];
+      campos.forEach(c => body.append(c, document.getElementById(c).value));
+      body.append("disponibilidad_inmediata",
+                  document.getElementById("disponibilidad_inmediata").checked);
+
+      fetch("propiedades", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString()
+      })
+      .then(r => r.json())
+      .then(res => {
+        const msg = document.getElementById("msg");
+        if (res.ok) {
+          msg.innerHTML = '<div class="alerta alerta-ok">¡Propiedad publicada!</div>';
+          document.querySelector("form")?.reset(); // Limpia el formulario si existe
+          cargarMisPropiedades(); // Refresca la lista de abajo automáticamente
+        } else {
+          msg.innerHTML = `<div class="alerta alerta-error">${res.error || 'Error al publicar.'}</div>`;
+        }
+      })
+      .catch(() => {
+        document.getElementById("msg").innerHTML =
+          '<div class="alerta alerta-error">Iniciá sesión como anfitrión.</div>';
+      });
+    }
+
+    function cargarMisPropiedades() {
+      fetch('api/session')
+        .then(res => res.json())
+        .then(sessionData => {
+          if (!sessionData.conectado || !sessionData.esVendedor) {
+            document.getElementById("mis-publicaciones").innerHTML = '<p style="color: var(--gris);">Iniciá sesión como anfitrión para ver tus anuncios.</p>';
+            return;
+          }
+
+          const miId = sessionData.usuario.idUsuario;
+
+          return fetch('propiedades')
+            .then(res => res.json())
+            .then(propiedades => {
+              const contenedor = document.getElementById("mis-publicaciones");
+              const misProps = propiedades.filter(p => p.idVendedor === miId);
+
+              if (misProps.length === 0) {
+                contenedor.innerHTML = '<p style="color: var(--gris);">Todavía no publicaste ninguna propiedad.</p>';
+                return;
+              }
+
+              contenedor.innerHTML = '';
+
+              misProps.forEach(prop => {
+                const tarjeta = document.createElement('div');
+                tarjeta.style.border = "1px solid #ddd";
+                tarjeta.style.borderRadius = "8px";
+                tarjeta.style.padding = "1.5rem";
+                tarjeta.style.backgroundColor = "#fff";
+
+                tarjeta.innerHTML = `
+                  <h3 style="margin-top: 0; color: #333;">${prop.calle} ${prop.altura}</h3>
+                  <p style="color: var(--gris); font-size: 0.9rem; margin-bottom: 0.5rem;">${prop.ciudad}, ${prop.provincia}</p>
+                  <p style="margin-bottom: 0.5rem;">${prop.descripcion}</p>
+                  <p style="font-size: 0.9rem; margin-bottom: 1rem;"><strong>Capacidad:</strong> ${prop.cantPersonas} personas</p>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <p style="color: var(--brasa); font-weight: bold; font-size: 1.2rem; margin: 0;">
+                      $${prop.precioPorNoche} <span style="font-size: 0.8rem; font-weight: normal; color: #666;">/ noche</span>
+                    </p>
+                    <button onclick="eliminarPropiedad(${prop.id})" class="btn" style="background-color: #dc3545; padding: 0.5rem 1rem;">Eliminar</button>
+                  </div>
+                `;
+                contenedor.appendChild(tarjeta);
+              });
+            });
+        })
+        .catch(err => {
+          console.error("Error al cargar propiedades:", err);
+          document.getElementById("mis-publicaciones").innerHTML = '<p style="color: red;">Error al cargar tus publicaciones.</p>';
+        });
+    }
+
+    function eliminarPropiedad(idPropiedad) {
+      if (!confirm("¿Estás seguro de que querés eliminar esta propiedad?")) return;
+
+      const params = new URLSearchParams();
+      params.append("accion", "eliminar");
+      params.append("id", idPropiedad);
+
+      fetch("propiedades", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString()
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.ok) {
+          alert("Propiedad eliminada correctamente.");
+          cargarMisPropiedades(); // Recarga la lista al instante
+        } else {
+          alert("No se pudo eliminar la propiedad.");
+        }
+      })
+      .catch(err => console.error("Error:", err));
+    }
+  </script>
+  <script src="js/session.js"></script>
+</body>
+</html>

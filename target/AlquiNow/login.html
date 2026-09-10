@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingresar — AlquiNow</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="nav">
+    <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">Alqui<span>Now</span></a></div>
+    <nav class="nav-links">
+      <a href="index.html">Buscar</a>
+      <a href="registro.html">Crear cuenta</a>
+    </nav>
+  </header>
+
+  <div class="form-box">
+    <h1>Ingresá a tu cuenta</h1>
+    <p class="sub">Bienvenido de nuevo.</p>
+
+    <!-- Mensajes según el querystring -->
+    <div id="msg"></div>
+    
+    <!-- Cartel de éxito (Oculto por defecto) -->
+<div id="alerta-exito" style="display: none; background: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-weight: bold;"></div>
+
+    <!-- El form envía POST al servlet /login -->
+    <form action="login" method="post">
+      <label for="mail">Mail</label>
+      <input type="email" id="mail" name="mail" required>
+
+      <label for="contrasena">Contraseña</label>
+      <input type="password" id="contrasena" name="contrasena" required>
+
+      <button type="submit" class="btn btn-block">Ingresar</button>
+    </form>
+
+    <p style="text-align:center; margin-top:1.2rem; color:var(--gris);">
+      ¿No tenés cuenta? <a href="registro.html" style="color:var(--brasa);">Registrate</a>
+    </p>
+  </div>
+
+ <script>
+    // Mostramos mensajes según parámetros en la URL
+    const params = new URLSearchParams(location.search);
+    const msg = document.getElementById("msg");
+    
+    // Caso 1: Viene de registrarse
+    if (params.get("registrado")) {
+      msg.innerHTML = '<div class="alerta alerta-ok">¡Cuenta creada! Ya podés ingresar.</div>';
+    }
+    
+    // Caso 2: Quiso entrar a una ruta protegida sin sesión
+    if (params.get("required")) {
+      msg.innerHTML = '<div class="alerta alerta-error">Necesitás iniciar sesión para ver esa página.</div>';
+    }
+
+    // Caso 3: Se equivocó de mail o contraseña (el que sumamos ahora)
+    if (params.get("error")) {
+      msg.innerHTML = '<div class="alerta alerta-error">Mail o contraseña incorrectos.</div>';
+      window.history.replaceState({}, document.title, "login.html");
+    }
+  </script>
+ 
+  <script>
+  // Lee los parámetros de la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  // Si detecta la palabra "verificado", enciende la caja verde
+  if (urlParams.has('verificado')) {
+    const exitoDiv = document.getElementById('alerta-exito');
+    exitoDiv.style.display = 'block';
+    exitoDiv.innerText = '¡Tu cuenta fue activada con éxito! Ya podés ingresar.';
+  }
+
+  // Opcional: Si querés atajar errores de credenciales desde LoginServlet
+  if (urlParams.has('error') && urlParams.get('error') === 'credenciales') {
+    // Necesitarías un div rojo similar con id="alerta-error"
+    // document.getElementById('alerta-error').style.display = 'block';
+  }
+</script>
+</body>
+</html>

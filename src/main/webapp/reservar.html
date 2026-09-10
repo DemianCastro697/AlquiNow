@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservar — AlquiNow</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="nav">
+    <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">Alqui<span>Now</span></a></div>
+    <nav class="nav-links">
+      <a href="index.html">Buscar</a>
+      <a href="login.html">Ingresar</a>
+    </nav>
+  </header>
+
+  <main class="contenedor" style="max-width:680px;">
+    <div id="detalle"></div>
+
+    <div class="form-box" style="margin-top:1.5rem; max-width:none;">
+      <h1 style="font-size:1.3rem;">Reservá tu estadía</h1>
+      <p class="sub">Elegí las fechas y confirmá.</p>
+      <div id="msg"></div>
+
+      <label for="fechaInicio">Desde</label>
+      <input type="date" id="fechaInicio">
+
+      <label for="fechaFinal">Hasta</label>
+      <input type="date" id="fechaFinal">
+
+      <button class="btn btn-block" onclick="reservar()">Confirmar reserva</button>
+    </div>
+
+    <!-- Sección de Reseñas -->
+    <div class="form-box" style="margin-top:2rem; max-width:none;">
+      <h2>Reseñas de la propiedad</h2>
+      
+      <div id="lista-resenas" style="margin-top: 1rem; margin-bottom: 2rem;">
+        <p>Cargando reseñas...</p>
+      </div>
+
+      <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Dejá tu reseña</h3>
+      <div id="msg-resena"></div>
+      
+      <label for="calificacion">Calificación</label>
+      <select id="calificacion" style="margin-bottom: 1rem; padding: 0.5rem; width: 100%;">
+        <option value="5">5 - Excelente</option>
+        <option value="4">4 - Muy buena</option>
+        <option value="3">3 - Buena</option>
+        <option value="2">2 - Regular</option>
+        <option value="1">1 - Mala</option>
+      </select>
+
+      <label for="comentario">Comentario</label>
+      <textarea id="comentario" rows="3" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px;" placeholder="¿Cómo fue tu estadía?"></textarea>
+
+      <button class="btn" onclick="enviarResena()">Publicar reseña</button>
+    </div>
+  </main>
+
+  <script>
+    const idPropiedad = new URLSearchParams(location.search).get("id");
+    let fechasOcupadas = [];
+
+    // 1. Cargamos el detalle de la propiedad
+    fetch("propiedades?id=" + idPropiedad)
+      .then(r => r.json())
+      .then(p => {
+        if (!p) { 
+          document.getElementById("detalle").innerHTML = '<p>Propiedad no encontrada.</p>'; 
+          return; 
+        }
+        document.getElementById("detalle").innerHTML = `
+          <div class="card"><div class="card-body">
+            <div class="ubic">${p.ciudad}, ${p.provincia}</div>
+            <h1 style="margin:.3rem 0;">${p.calle} ${p.altura || ''}</h1>
+            <div class="precio">$${Number(p.precio_por_noche || p.precioPorNoche || 25000).toLocaleString('es-AR')}
+              <small>/ noche</small></div>
+            <p style="margin-top:.6rem; color:var(--gris);">${p.descripcion || ''}</p>
+          </div></div>`;
+      });
+
+    // 2. Cargamos las fechas ocupadas desde tu backend
+    fetch("disponibilidad?idPropiedad=" + idPropiedad)
+      .then(r => r.json())
+      .then(fechas => {
+        fechasOcupadas = fechas;
+      })
+      .catch(e => console.error("Error al cargar disponibilidad", e));
+
+    // 3. Bloqueamos el calendario para que no puedan elegir fechas del pasado
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById("fechaInicio").setAttribute("min", hoy);
+    document.getElementById("fechaFinal").setAttribute("min", hoy);
+
+    // 4. Función de reserva con validación inteligente
+    function reservar() {
+      const inputInicio = document.getElementById("fechaInicio").value;
+      const inputFinal = document.getElementById("fechaFinal").value;
+      const msg = document.getElementById("msg");
+
+      if (!inputInicio || !inputFinal) {
+        msg.innerHTML = '<div class="alerta alerta-error">Por favor, elegí ambas fechas.</div>';
+        return;
+      }
+      if (inputInicio >= inputFinal) {
+        msg.innerHTML = '<div class="alerta alerta-error">La fecha de fin debe ser posterior al inicio.</div>';
+        return;
+      }
+
+      let fechaActual = new Date(inputInicio);
+      const fechaFin = new Date(inputFinal);
+      let rangoInvalido = false;
+
+      while (fechaActual <= fechaFin) {
+        const fechaString = fechaActual.toISOString().split('T')[0];
+        if (fechasOcupadas.includes(fechaString)) {
+          rangoInvalido = true;
+          break;
+        }
+        fechaActual.setDate(fechaActual.getDate() + 1);
+      }
+
+      if (rangoInvalido) {
+        msg.innerHTML = '<div class="alerta alerta-error">Algunas de las fechas seleccionadas ya están reservadas. Por favor, elegí otro rango.</div>';
+        return;
+      }
+
+      const body = new URLSearchParams();
+      body.append("idPropiedad", idPropiedad);
+      body.append("fechaInicio", inputInicio);
+      body.append("fechaFinal", inputFinal);
+
+      fetch("reservas", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString()
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          msg.innerHTML = `<div class="alerta alerta-ok">
+            ¡Reserva creada! ${res.noches} noches · Total $${Number(res.monto).toLocaleString('es-AR')}</div>`;
+        } else {
+          msg.innerHTML = `<div class="alerta alerta-error">${res.error || 'No se pudo reservar.'}</div>`;
+        }
+      })
+      .catch(() => {
+        msg.innerHTML = '<div class="alerta alerta-error">Iniciá sesión como huésped para reservar.</div>';
+      });
+    }
+
+    // 5. Cargar reseñas de la propiedad
+    function cargarResenas() {
+      fetch("resenas?idPropiedad=" + idPropiedad)
+        .then(r => r.json())
+        .then(resenas => {
+          const cont = document.getElementById("lista-resenas");
+          if (!resenas || resenas.length === 0) {
+            cont.innerHTML = "<p>Aún no hay reseñas para esta propiedad.</p>";
+            return;
+          }
+          
+          let html = "";
+          resenas.forEach(r => {
+            const estrellas = "★".repeat(r.calificacion) + "☆".repeat(5 - r.calificacion);
+            // Formateamos la fecha (viene como YYYY-MM-DD HH:mm:ss)
+            const fecha = new Date(r.fecha).toLocaleDateString('es-AR');
+            
+            html += `
+              <div style="border-bottom: 1px solid #ddd; padding: 1rem 0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <strong>${r.nombreUsuario}</strong>
+                  <span style="color: #f39c12; font-size: 1.1rem;">${estrellas}</span>
+                </div>
+                <p style="margin: 0.5rem 0; color: #555;">${r.comentario}</p>
+                <small style="color: #999;">${fecha}</small>
+              </div>
+            `;
+          });
+          cont.innerHTML = html;
+        })
+        .catch(e => console.error("Error al cargar reseñas", e));
+    }
+
+    // 6. Enviar reseña
+    function enviarResena() {
+      const calificacion = document.getElementById("calificacion").value;
+      const comentario = document.getElementById("comentario").value;
+      const msgResena = document.getElementById("msg-resena");
+
+      if (!calificacion || !comentario) {
+        msgResena.innerHTML = '<div class="alerta alerta-error">Completá la calificación y el comentario.</div>';
+        return;
+      }
+
+      const body = new URLSearchParams();
+      body.append("idPropiedad", idPropiedad);
+      body.append("calificacion", calificacion);
+      body.append("comentario", comentario);
+
+      fetch("resenas", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString()
+      })
+      .then(r => {
+        if (r.status === 401) throw new Error("No autenticado");
+        return r.json();
+      })
+      .then(res => {
+        if (res.ok) {
+          msgResena.innerHTML = `<div class="alerta alerta-ok">${res.mensaje}</div>`;
+          document.getElementById("comentario").value = "";
+          document.getElementById("calificacion").value = "5";
+          cargarResenas(); // Recargar la lista
+        } else {
+          msgResena.innerHTML = `<div class="alerta alerta-error">${res.error}</div>`;
+        }
+      })
+      .catch((e) => {
+        if (e.message === "No autenticado") {
+          msgResena.innerHTML = '<div class="alerta alerta-error">Tenés que <a href="login.html">iniciar sesión</a> para dejar una reseña.</div>';
+        } else {
+          msgResena.innerHTML = '<div class="alerta alerta-error">Ocurrió un error al enviar la reseña.</div>';
+        }
+      });
+    }
+
+    // Cargar las reseñas al iniciar
+    cargarResenas();
+
+  </script>
+  <script src="js/session.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificar cuenta — AlquiNow</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="nav">
+    <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">Alqui<span>Now</span></a></div>
+  </header>
+
+  <div class="form-box">
+    <h1>Revisá tu correo</h1>
+    <p class="sub">Te enviamos un código de 6 dígitos.</p>
+
+    <!-- CAJA PARA MENSAJES DE ERROR -->
+    <div id="alerta-error" style="display: none; background: #ffebee; color: #c62828; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-weight: bold;"></div>
+
+    <form action="verificar" method="post">
+      <label for="mail">Correo a verificar</label>
+      <input type="email" id="mail" name="mail" readonly style="background-color: #f0f0f0;">
+
+      <label for="codigo">Código de seguridad</label>
+      <input type="text" id="codigo" name="codigo" pattern="\d{6}" maxlength="6" title="Ingresá los 6 números que te llegaron por mail" required autocomplete="off" style="letter-spacing: 5px; font-size: 1.2rem; text-align: center;">
+      
+      <button type="submit" class="btn btn-block" style="margin-top: 20px;">Activar cuenta</button>
+    </form>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Autocompleta el mail en el input para que no tenga que escribirlo de nuevo
+    if (urlParams.has('mail')) {
+      document.getElementById('mail').value = urlParams.get('mail');
+    }
+
+    // Manejo de errores dinámico
+    if (urlParams.has('error')) {
+      const errorDiv = document.getElementById('alerta-error');
+      errorDiv.style.display = 'block';
+      if (urlParams.get('error') === 'invalido') {
+        errorDiv.innerText = 'El código es incorrecto. Intentá nuevamente.';
+      } else {
+        errorDiv.innerText = 'Ocurrió un error. Verificá tus datos.';
+      }
+    }
+  </script>
+</body>
+</html>

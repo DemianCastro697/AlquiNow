@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear cuenta — AlquiNow</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="nav">
+    <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">Alqui<span>Now</span></a></div>
+    <nav class="nav-links">
+      <a href="index.html">Buscar</a>
+      <a href="login.html">Ingresar</a>
+    </nav>
+  </header>
+
+  <div class="form-box">
+    <h1>Creá tu cuenta</h1>
+    <p class="sub">Es gratis y toma un minuto.</p>
+
+    <!-- CAJA PARA MENSAJES DE ERROR (Oculta por defecto) -->
+    <div id="alerta-error" style="display: none; background: #ffebee; color: #c62828; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-weight: bold;"></div>
+
+    <form action="registro" method="post">
+      
+      <label for="mail">Mail</label>
+      <input type="email" id="mail" name="mail" required>
+
+      <label for="contrasena">Contraseña</label>
+      <input type="password" id="contrasena" name="contrasena" pattern="(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}" title="Debe tener al menos 8 caracteres, incluir una mayúscula y un carácter especial (ej: ! @ # $ * . - _)" required>
+
+      <label for="dni">DNI</label>
+      <input type="text" id="dni" name="dni" pattern="\d{8}" maxlength="8" title="Ingresá exactamente 8 números sin puntos ni letras" required>
+
+      <label for="tel">Teléfono</label>
+      <input type="text" id="tel" name="tel" value="+549" pattern="\+549\d{10}" maxlength="14" title="Debe empezar con +549 seguido de tu código de área y número (ej: +5492914567890)" required>
+      
+      <button type="submit" class="btn btn-block">Crear cuenta</button>
+    </form>
+
+    <p style="text-align:center; margin-top:1.2rem; color:var(--gris);">
+      ¿Ya tenés cuenta? <a href="login.html" style="color:var(--brasa);">Ingresá</a>
+    </p>
+  </div>
+
+  <script>
+    // Lee la URL para ver si Java mandó algún código de error
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorDiv = document.getElementById('alerta-error');
+    
+    if (urlParams.has('error')) {
+      errorDiv.style.display = 'block';
+      const tipoError = urlParams.get('error');
+      
+      if (tipoError === 'existe') {
+        errorDiv.innerHTML = 'Ese mail ya está registrado. <a href="login.html" style="color: #c62828; text-decoration: underline;">Ingresá acá</a>.';
+      } else if (tipoError === 'dni') {
+        errorDiv.innerText = 'El DNI es inválido. Debe contener exactamente 8 números.';
+      } else if (tipoError === 'tel') {
+        errorDiv.innerText = 'El teléfono es inválido. Verificá el formato.';
+      } else if (tipoError === 'pass') {
+        errorDiv.innerText = 'La contraseña es muy débil. Revisá los requisitos.';
+      } else if (tipoError === 'vacios') {
+        errorDiv.innerText = 'El mail y la contraseña son obligatorios.';
+      } else {
+        errorDiv.innerText = 'Ocurrió un error. Verificá tus datos.';
+      }
+    }
+  </script>
+</body>
+</html>

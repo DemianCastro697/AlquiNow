@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlquiNow — Alquileres temporales</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="nav">
+    <div class="logo">Alqui<span>Now</span></div>
+    <nav class="nav-links">
+      <a href="index.html">Buscar</a>
+      <!-- El botón de favoritos se quitó de acá para que no lo vean los no logueados -->
+      <a href="login.html">Ingresar</a>
+      <a href="registro.html">Crear cuenta</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Tu próxima estadía, <span>a un clic</span></h1>
+    <p>Encontrá departamentos y casas para alquilar por noche en toda Argentina.</p>
+  </section>
+
+  <main class="contenedor">
+
+    <!-- Filtros de búsqueda -->
+    <div class="filtros">
+      <div class="campo">
+        <label for="f-ciudad">Ciudad</label>
+        <input type="text" id="f-ciudad" placeholder="Ej: Neuquén">
+      </div>
+      <div class="campo">
+        <label for="f-provincia">Provincia</label>
+        <select id="f-provincia">
+          <option value="">Todas</option>
+          <option>Buenos Aires</option>
+          <option>CABA</option>
+          <option>Córdoba</option>
+          <option>Mendoza</option>
+          <option>Neuquén</option>
+          <option>Río Negro</option>
+          <option>Santa Fe</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="f-precio">Precio máx / noche</label>
+        <input type="number" id="f-precio" placeholder="$">
+      </div>
+      <div class="campo">
+        <label for="f-personas">Personas (mín)</label>
+        <input type="number" id="f-personas" placeholder="2">
+      </div>
+      <button class="btn" onclick="buscar()">Buscar</button>
+    </div>
+
+    <!-- Resultados -->
+    <h2 style="margin-top: 2rem; margin-bottom: 1rem;">Propiedades destacadas</h2>
+    
+    <!-- Mantenemos tu ID "resultados" original -->
+    <div id="resultados" class="grid" style="gap: 1.5rem;">
+        <p>Cargando catálogo...</p>
+    </div>
+  </main> 
+
+  <!-- 1. Cargamos el detector de sesiones con el forzador de caché (?v=3) -->
+  <script src="js/session.js?v=3"></script>
+  
+  <!-- 2. Lógica para cargar el catálogo y el buscador dinámico -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      cargarPropiedades();
+    });
+
+    function cargarPropiedades(filtros = '') {
+      fetch('propiedades' + filtros) 
+        .then(response => {
+          if (!response.ok) throw new Error("Error en el servidor");
+          return response.json();
+        })
+        .then(data => {
+          const contenedor = document.getElementById("resultados"); 
+          
+          if (data.length === 0) {
+            contenedor.innerHTML = '<div class="alerta" style="grid-column: 1 / -1;">No encontramos propiedades que coincidan con tu búsqueda.</div>';
+            return;
+          }
+
+          contenedor.innerHTML = ''; 
+
+          data.forEach(prop => {
+            const tarjeta = document.createElement('div');
+            tarjeta.style.border = "1px solid #ddd";
+            tarjeta.style.borderRadius = "8px";
+            tarjeta.style.padding = "1.5rem";
+            tarjeta.style.backgroundColor = "#fff";
+
+            tarjeta.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <h3 style="margin-top: 0; color: #333;">${prop.calle} ${prop.altura}</h3>
+                <button onclick="toggleFavorito(${prop.id}, this)" class="btn-favorito" data-estado="vacio" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0;">🤍</button>
+              </div>
+              <p style="color: var(--gris); font-size: 0.9rem; margin-bottom: 1rem;">${prop.ciudad}, ${prop.provincia}</p>
+              
+              <p style="margin-bottom: 0.5rem;">${prop.descripcion}</p>
+              <p style="font-size: 0.9rem;"><strong>Capacidad:</strong> ${prop.cantPersonas} personas</p>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <p style="color: var(--brasa); font-weight: bold; font-size: 1.2rem; margin: 0;">
+                  $${prop.precioPorNoche} <span style="font-size: 0.8rem; font-weight: normal; color: #666;">/ noche</span>
+                </p>
+                
+                <a href="reservar.html?id=${prop.id}" class="btn">Reservar</a>
+              </div>
+            `;
+            
+            contenedor.appendChild(tarjeta);
+          });
+        })
+        .catch(error => {
+          document.getElementById("resultados").innerHTML = 
+            '<div class="alerta alerta-error" style="grid-column: 1 / -1;">Error de conexión.</div>';
+          console.error(error);
+        });
+    }
+
+    function buscar() {
+      const ciudad = document.getElementById("f-ciudad").value.trim();
+      const provincia = document.getElementById("f-provincia").value;
+      const precio = document.getElementById("f-precio").value;
+      const personas = document.getElementById("f-personas").value;
+
+      const params = new URLSearchParams();
+      if (ciudad) params.append("ciudad", ciudad);
+      if (provincia && provincia !== "") params.append("provincia", provincia);
+      if (precio) params.append("precioMax", precio);
+      if (personas) params.append("personas", personas);
+
+      const queryString = params.toString() ? '?' + params.toString() : '';
+      cargarPropiedades(queryString);
+    }
+
+    function toggleFavorito(idPropiedad, btnElement) {
+      const estadoActual = btnElement.getAttribute('data-estado');
+      const accion = estadoActual === 'vacio' ? 'agregar' : 'eliminar';
+
+      const params = new URLSearchParams();
+      params.append('idPropiedad', idPropiedad);
+      params.append('accion', accion);
+
+      fetch('favorito', {
+          method: 'POST',
+          body: params
+      })
+      .then(response => {
+          if (response.status === 401) {
+              alert("Tenés que iniciar sesión para guardar favoritos.");
+              window.location.href = "login.html";
+              return null;
+          }
+          return response.text();
+      })
+      .then(texto => {
+          if (!texto) return; 
+          
+          if (texto.trim() === 'agregado') {
+              btnElement.innerText = '❤️'; 
+              btnElement.setAttribute('data-estado', 'lleno');
+          } else if (texto.trim() === 'eliminado') {
+              btnElement.innerText = '🤍'; 
+              btnElement.setAttribute('data-estado', 'vacio');
+          }
+      })
+      .catch(error => console.error("Error en favoritos:", error));
+    }
+  </script>
+</body>
+</html>

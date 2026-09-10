@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Favoritos — AlquiNow</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="nav">
+    <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">Alqui<span>Now</span></a></div>
+    <nav class="nav-links">
+      <a href="index.html">Buscar</a>
+      <a href="mis-reservas.html">Mis Reservas</a>
+    </nav>
+  </header>
+
+  <main class="contenedor">
+    <h2 style="margin-top: 2rem; margin-bottom: 1rem;">Mi Lista de Deseos</h2>
+    
+    <div id="resultados-favoritos" class="grid" style="gap: 1.5rem;">
+        <p>Cargando tus lugares favoritos...</p>
+    </div>
+  </main> 
+
+  <script src="js/session.js"></script>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      cargarFavoritos();
+    });
+
+    function cargarFavoritos() {
+      fetch('mis-favoritos-data') 
+        .then(response => {
+          if (response.status === 401) {
+            window.location.href = "login.html";
+            throw new Error("No autorizado");
+          }
+          if (!response.ok) throw new Error("Error en el servidor");
+          return response.json();
+        })
+        .then(data => {
+          const contenedor = document.getElementById("resultados-favoritos"); 
+          
+          if (data.length === 0) {
+            contenedor.innerHTML = '<div class="alerta" style="grid-column: 1 / -1;">Todavía no guardaste ninguna propiedad. <a href="index.html">Explorar catálogo</a></div>';
+            return;
+          }
+
+          contenedor.innerHTML = ''; 
+
+          data.forEach(prop => {
+            const tarjeta = document.createElement('div');
+            // Le ponemos un ID único a la tarjeta para poder ocultarla si el usuario le saca el corazón
+            tarjeta.id = `tarjeta-${prop.id}`; 
+            tarjeta.style.border = "1px solid #ddd";
+            tarjeta.style.borderRadius = "8px";
+            tarjeta.style.padding = "1.5rem";
+            tarjeta.style.backgroundColor = "#fff";
+
+            // Arrancamos con el corazón en rojo (lleno) porque sabemos que está en favoritos
+            tarjeta.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <h3 style="margin-top: 0; color: #333;">${prop.calle} ${prop.altura}</h3>
+                <button onclick="quitarFavorito(${prop.id})" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0;" title="Quitar de la lista">❤️</button>
+              </div>
+              <p style="color: var(--gris); font-size: 0.9rem; margin-bottom: 1rem;">${prop.ciudad}, ${prop.provincia}</p>
+              <p style="margin-bottom: 0.5rem;">${prop.descripcion}</p>
+              <p style="font-size: 0.9rem;"><strong>Capacidad:</strong> ${prop.cantPersonas} personas</p>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <p style="color: var(--brasa); font-weight: bold; font-size: 1.2rem; margin: 0;">
+                  $${prop.precioPorNoche} <span style="font-size: 0.8rem; font-weight: normal; color: #666;">/ noche</span>
+                </p>
+                <a href="reservar.html?id=${prop.id}" class="btn">Reservar</a>
+              </div>
+            `;
+            contenedor.appendChild(tarjeta);
+          });
+        })
+        .catch(error => console.error(error));
+    }
+
+    // Función para eliminar de la lista y hacer desaparecer la tarjeta al instante
+    function quitarFavorito(idPropiedad) {
+      const params = new URLSearchParams();
+      params.append('idPropiedad', idPropiedad);
+      params.append('accion', 'eliminar');
+
+      fetch('favorito', {
+          method: 'POST',
+          body: params
+      })
+      .then(response => response.text())
+      .then(texto => {
+          if (texto.trim() === 'eliminado') {
+              // Si se eliminó de MySQL, ocultamos la tarjeta con una pequeña animación
+              const tarjeta = document.getElementById(`tarjeta-${idPropiedad}`);
+              tarjeta.style.display = 'none';
+          }
+      })
+      .catch(error => console.error("Error al quitar favorito:", error));
+    }
+  </script>
+</body>
+</html>
