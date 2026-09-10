@@ -113,4 +113,18 @@ public class Reserva {
     public void setCiudadPropiedad(String ciudadPropiedad) {
         this.ciudadPropiedad = ciudadPropiedad;
     }
+    
+    // Nuevos atributos para mostrar en el frontend
+    private String calle;
+    private int altura;
+    private String ciudad;
+
+    public String getCalle() { return calle; }
+    public void setCalle(String calle) { this.calle = calle; }
+
+    public int getAltura() { return altura; }
+    public void setAltura(int altura) { this.altura = altura; }
+
+    public String getCiudad() { return ciudad; }
+    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
 }

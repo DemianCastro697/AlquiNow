@@ -1,83 +1,90 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mis Reservas — AlquiNow</title>
-  <link rel="stylesheet" href="css/estilos.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mis Reservas — AlquiNow</title>
+        <link rel="stylesheet" href="css/estilos.css">
+    </head>
+    <body>
 
-  <!-- Cabecera con la barra de navegación vacía para que session.js haga su magia -->
-  <header class="nav">
-    <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">Alqui<span>Now</span></a></div>
-    <nav class="nav-links"></nav>
-  </header>
+        <!-- Cabecera con la barra de navegación vacía para que session.js haga su magia -->
+        <header class="nav">
+            <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit;">Alqui<span>Now</span></a></div>
+            <nav class="nav-links"></nav>
+        </header>
 
-  <main class="contenedor" style="max-width:800px;">
-    <h1 style="margin-bottom:.3rem;">Mis Reservas</h1>
-    <p style="color:var(--gris);">Historial de tus viajes y estadías confirmadas.</p>
-    
-    <!-- Contenedor donde JavaScript va a inyectar las tarjetas -->
-    <div id="contenedor-reservas" style="margin-top: 2rem; display: grid; gap: 1.5rem;">
-      <p>Cargando tus reservas...</p>
-    </div>
-  </main>
+        <main class="contenedor" style="max-width:800px;">
+            <h1 style="margin-bottom:.3rem;">Mis Reservas</h1>
+            <p style="color:var(--gris);">Historial de tus viajes y estadías confirmadas.</p>
 
-  <!-- 1. Cargamos el detector de sesiones -->
-  <script src="js/session.js"></script>
+            <!-- Contenedor donde JavaScript va a inyectar las tarjetas -->
+            <div id="contenedor-reservas" style="margin-top: 2rem; display: grid; gap: 1.5rem;">
+                <p>Cargando tus reservas...</p>
+            </div>
+        </main>
 
-  <!-- 2. Lógica específica de esta pantalla -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      cargarReservas();
-    });
+        <!-- 1. Cargamos el detector de sesiones -->
+        <script src="js/session.js"></script>
 
-    function cargarReservas() {
-      // Le pedimos al backend la lista de reservas del usuario conectado
-      fetch('reservas') 
-        .then(response => {
-          if (!response.ok) throw new Error("No autorizado o error del servidor");
-          return response.json();
-        })
-        .then(data => {
-          const contenedor = document.getElementById("contenedor-reservas");
-          
-          if (data.length === 0) {
-            contenedor.innerHTML = '<div class="alerta">Aún no tenés reservas confirmadas. ¡Buscá tu próximo destino!</div>';
-            return;
-          }
+        <!-- 2. Lógica específica de esta pantalla -->
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                cargarReservas();
+            });
+            function cargarReservas() {
+                // Le pedimos al backend la lista de reservas del usuario conectado
+                fetch('reservas')
+                        .then(response => {
+                            if (!response.ok)
+                                throw new Error("No autorizado o error del servidor");
+                            return response.json();
+                        })
+                        .then(data => {
+                            const contenedor = document.getElementById("contenedor-reservas");
+                            if (data.length === 0) {
+                                contenedor.innerHTML = '<div class="alerta">Aún no tenés reservas confirmadas. ¡Buscá tu próximo destino!</div>';
+                                return;
+                            }
 
-          // Limpiamos el texto de "Cargando..."
-          contenedor.innerHTML = '';
+                            // Limpiamos el texto de "Cargando..."
+                            contenedor.innerHTML = '';
+                            // Iteramos sobre las reservas y armamos las tarjetas visuales
+                            data.forEach(reserva => {
+                                const tarjeta = document.createElement('div');
+                                tarjeta.style.border = "1px solid #ddd";
+                                tarjeta.style.padding = "1.5rem";
+                                tarjeta.style.borderRadius = "8px";
+                                tarjeta.style.backgroundColor = "#fff";
+                                // Armamos el HTML interno de cada reserva con las claves exactas del JSON
+                                // Armamos el HTML interno de cada reserva con las claves exactas del JSON
+                                // Armamos el HTML interno de cada reserva con las claves exactas del JSON
+                                console.log("Datos de la reserva:", reserva);
+                tarjeta.innerHTML = `
+    <h3 style="margin-top: 0; color: #333;">Reserva #${reserva.id}</h3>
 
-          // Iteramos sobre las reservas y armamos las tarjetas visuales
-          data.forEach(reserva => {
-            const tarjeta = document.createElement('div');
-            tarjeta.style.border = "1px solid #ddd";
-            tarjeta.style.padding = "1.5rem";
-            tarjeta.style.borderRadius = "8px";
-            tarjeta.style.backgroundColor = "#fff";
+    <p style="margin-bottom: 0.5rem;">
+        <strong>Propiedad:</strong> ${reserva.calle} ${reserva.altura}, ${reserva.ciudad}
+    </p>
 
-            // Armamos el HTML interno de cada reserva con las claves exactas del JSON
-            tarjeta.innerHTML = `
-              <h3 style="margin-top: 0;">Reserva #${reserva.id}</h3>
-              <p><strong>Propiedad ID:</strong> ${reserva.idPropiedad}</p>
-              <p><strong>Check-in:</strong> ${reserva.fechaInicio}</p>
-              <p><strong>Check-out:</strong> ${reserva.fechaFinal}</p>
-              <p><strong>Estado:</strong> <span style="text-transform: capitalize;">${reserva.estado}</span></p>
-              <p style="color: var(--brasa); font-weight: bold; margin-bottom: 0;">Total pagado: $${reserva.montoTotal}</p>
-            `;
-            
-            contenedor.appendChild(tarjeta);
-          });
-        })
-        .catch(error => {
-          document.getElementById("contenedor-reservas").innerHTML = 
-            '<div class="alerta alerta-error">Error al cargar las reservas. Asegurate de haber iniciado sesión.</div>';
-          console.error(error);
-        });
-    }
-  </script>
-</body>
+    <p style="margin-bottom: 0.2rem;"><strong>Desde:</strong> ${reserva.fechaInicio}</p>
+    <p style="margin-bottom: 0.5rem;"><strong>Hasta:</strong> ${reserva.fechaFinal}</p>
+
+    <p style="margin-bottom: 0.5rem;"><strong>Estado:</strong> ${reserva.estado}</p>
+    <p style="color: var(--brasa); font-weight: bold; margin: 0;">
+        Total pagado: $${reserva.montoTotal}
+    </p>
+`;
+
+                                contenedor.appendChild(tarjeta);
+                            });
+                        })
+                        .catch(error => {
+                            document.getElementById("contenedor-reservas").innerHTML =
+                                    '<div class="alerta alerta-error">Error al cargar las reservas. Asegurate de haber iniciado sesión.</div>';
+                            console.error(error);
+                        });
+            }
+        </script>
+    </body>
 </html>

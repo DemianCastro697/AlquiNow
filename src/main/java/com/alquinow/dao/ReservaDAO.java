@@ -17,23 +17,26 @@ import java.util.List;
  */
 public class ReservaDAO {
 
-    /** Crea una reserva nueva, bloquea los días en Disponibilidad y devuelve su ID generado. */
+    /**
+     * Crea una reserva nueva, bloquea los días en Disponibilidad y devuelve su
+     * ID generado.
+     */
     public int crear(Reserva r) throws SQLException {
-        String sqlReserva =
-            "INSERT INTO Reserva "
-            + "(ID_comprador_fk, ID_propiedad_fk, fecha_inicio, fecha_final, "
-            + " estado, monto_total, fecha_reserva, dias_cancelacion_aplicados, "
-            + " fecha_limite_cancelacion) "
-            + "VALUES (?, ?, ?, ?, ?, ?, CURDATE(), ?, ?)";
+        String sqlReserva
+                = "INSERT INTO Reserva "
+                + "(ID_comprador_fk, ID_propiedad_fk, fecha_inicio, fecha_final, "
+                + " estado, monto_total, fecha_reserva, dias_cancelacion_aplicados, "
+                + " fecha_limite_cancelacion) "
+                + "VALUES (?, ?, ?, ?, ?, ?, CURDATE(), ?, ?)";
 
-        String sqlDisponibilidad = 
-            "INSERT INTO Disponibilidad (ID_propiedad_fk, fecha, estado) VALUES (?, ?, 'Ocupado')";
+        String sqlDisponibilidad
+                = "INSERT INTO Disponibilidad (ID_propiedad_fk, fecha, estado) VALUES (?, ?, 'Ocupado')";
 
         Connection con = null;
         try {
             con = Conexion.getConexion();
             con.setAutoCommit(false); // Arranca la transacción
-            
+
             int idGenerado = -1;
 
             // 1. Insertar la reserva
@@ -44,7 +47,7 @@ public class ReservaDAO {
                 ps.setDate(4, r.getFechaFinal());
                 ps.setString(5, r.getEstado() == null ? "pendiente" : r.getEstado());
                 ps.setBigDecimal(6, r.getMontoTotal());
-                
+
                 if (r.getDiasCancelacionAplicados() == null) {
                     ps.setNull(7, java.sql.Types.INTEGER);
                 } else {
@@ -53,7 +56,7 @@ public class ReservaDAO {
                 ps.setDate(8, r.getFechaLimiteCancelacion());
 
                 ps.executeUpdate();
-                
+
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         idGenerado = rs.getInt(1);
@@ -95,23 +98,29 @@ public class ReservaDAO {
         }
     }
 
-    /** Lista las reservas de un comprador, con la ciudad de la propiedad. */
+    /**
+     * Lista las reservas de un comprador, con la dirección exacta de la
+     * propiedad.
+     */
     public List<Reserva> listarPorComprador(int idComprador) throws SQLException {
-        String sql =
-            "SELECT r.*, p.ciudad AS ciudad_prop "
-            + "FROM Reserva r "
-            + "JOIN Propiedad p ON r.ID_propiedad_fk = p.ID_propiedad "
-            + "WHERE r.ID_comprador_fk = ? "
-            + "ORDER BY r.fecha_reserva DESC";
+        // 1. Sumamos p.calle y p.altura a la selección
+        String sql
+                = "SELECT r.*, p.ciudad AS ciudad_prop, p.calle AS calle_prop, p.altura AS altura_prop "
+                + "FROM Reserva r "
+                + "JOIN Propiedad p ON r.ID_propiedad_fk = p.ID_propiedad "
+                + "WHERE r.ID_comprador_fk = ? "
+                + "ORDER BY r.fecha_reserva DESC";
 
         List<Reserva> lista = new ArrayList<>();
-        try (Connection con = Conexion.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = Conexion.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idComprador);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Reserva r = mapear(rs);
-                    r.setCiudadPropiedad(rs.getString("ciudad_prop"));
+                    // 2. Guardamos los nuevos datos de la dirección en la reserva
+                    r.setCiudad(rs.getString("ciudad_prop"));
+                    r.setCalle(rs.getString("calle_prop"));
+                    r.setAltura(rs.getInt("altura_prop"));
                     lista.add(r);
                 }
             }
@@ -119,12 +128,13 @@ public class ReservaDAO {
         return lista;
     }
 
-    /** Cambia el estado de una reserva (ej: "cancelada", "confirmada"). */
+    /**
+     * Cambia el estado de una reserva (ej: "cancelada", "confirmada").
+     */
     public boolean actualizarEstado(int idReserva, String nuevoEstado)
             throws SQLException {
-        try (Connection con = Conexion.getConexion();
-             PreparedStatement ps = con.prepareStatement(
-                     "UPDATE Reserva SET estado = ? WHERE ID_reserva = ?")) {
+        try (Connection con = Conexion.getConexion(); PreparedStatement ps = con.prepareStatement(
+                "UPDATE Reserva SET estado = ? WHERE ID_reserva = ?")) {
             ps.setString(1, nuevoEstado);
             ps.setInt(2, idReserva);
             return ps.executeUpdate() > 0;
