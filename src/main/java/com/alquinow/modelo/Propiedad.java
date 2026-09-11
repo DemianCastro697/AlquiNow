@@ -157,4 +157,23 @@ public class Propiedad {
     public void setDiasCancelacionSinPenalizacion(Integer dias) {
         this.diasCancelacionSinPenalizacion = dias;
     }
+    // Nuevas configuraciones para la seña
+    private int porcentajeSena;
+    private int horasLimitePago;
+
+    public int getPorcentajeSena() {
+        return porcentajeSena;
+    }
+
+    public void setPorcentajeSena(int porcentajeSena) {
+        this.porcentajeSena = porcentajeSena;
+    }
+
+    public int getHorasLimitePago() {
+        return horasLimitePago;
+    }
+
+    public void setHorasLimitePago(int horasLimitePago) {
+        this.horasLimitePago = horasLimitePago;
+    }
 }

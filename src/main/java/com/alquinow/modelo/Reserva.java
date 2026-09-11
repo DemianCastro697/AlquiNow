@@ -127,4 +127,15 @@ public class Reserva {
 
     public String getCiudad() { return ciudad; }
     public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    
+    // Nuevo límite de tiempo para que el inquilino pague la seña
+    private java.sql.Timestamp fechaLimitePago;
+
+    public java.sql.Timestamp getFechaLimitePago() {
+        return fechaLimitePago;
+    }
+
+    public void setFechaLimitePago(java.sql.Timestamp fechaLimitePago) {
+        this.fechaLimitePago = fechaLimitePago;
+    }
 }

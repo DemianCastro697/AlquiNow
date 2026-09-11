@@ -59,24 +59,50 @@
                                 // Armamos el HTML interno de cada reserva con las claves exactas del JSON
                                 // Armamos el HTML interno de cada reserva con las claves exactas del JSON
                                 // Armamos el HTML interno de cada reserva con las claves exactas del JSON
-                                console.log("Datos de la reserva:", reserva);
-                tarjeta.innerHTML = `
-    <h3 style="margin-top: 0; color: #333;">Reserva #${reserva.id}</h3>
+                               console.log("Datos de la reserva:", reserva);
 
-    <p style="margin-bottom: 0.5rem;">
-        <strong>Propiedad:</strong> ${reserva.calle} ${reserva.altura}, ${reserva.ciudad}
-    </p>
+        // 1. Filtramos el estado para que se lea natural
+        let estadoLimpio = reserva.estado;
+        if (reserva.estado === 'pendiente_sena') {
+            estadoLimpio = 'Pendiente de seña';
+        }
 
-    <p style="margin-bottom: 0.2rem;"><strong>Desde:</strong> ${reserva.fechaInicio}</p>
-    <p style="margin-bottom: 0.5rem;"><strong>Hasta:</strong> ${reserva.fechaFinal}</p>
+        // 2. Acortamos la fecha (corta los últimos caracteres para borrar los segundos y el .0)
+        let limiteCorto = reserva.fechaLimitePago ? reserva.fechaLimitePago.substring(0, 16) : '';
 
-    <p style="margin-bottom: 0.5rem;"><strong>Estado:</strong> ${reserva.estado}</p>
-    <p style="color: var(--brasa); font-weight: bold; margin: 0;">
-        Total pagado: $${reserva.montoTotal}
-    </p>
-`;
+        // 3. Preparamos las alertas visuales
+        let alertaSena = "";
+        let botonPagar = "";
 
-                                contenedor.appendChild(tarjeta);
+        if (reserva.estado === 'pendiente_sena') {
+            alertaSena = `<p style="color: #d9534f; font-weight: bold; margin-bottom: 5px; margin-top: 15px;">
+                            ⚠️ Límite para pagar la seña: ${limiteCorto}
+                          </p>`;
+            botonPagar = `<button onclick="abrirModalPago(${reserva.id})" style="background-color: #f0ad4e; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px; font-weight: bold;">
+                            Pagar Seña
+                          </button>`;
+        }
+
+        // 4. Armamos el HTML (Cambiamos el título h3 para ocultar el ID)
+        tarjeta.innerHTML = `
+            <h3 style="margin-top: 0; color: #333;">Detalles de la estadía</h3>
+            
+            <p style="margin-bottom: 0.5rem;">
+                <strong>Propiedad:</strong> ${reserva.calle} ${reserva.altura}, ${reserva.ciudad}
+            </p>
+            
+            <p style="margin-bottom: 0.2rem;"><strong>Desde:</strong> ${reserva.fechaInicio}</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Hasta:</strong> ${reserva.fechaFinal}</p>
+            
+            <p style="margin-bottom: 0.5rem;"><strong>Estado:</strong> ${estadoLimpio}</p>
+            <p style="color: var(--brasa); font-weight: bold; margin: 0;">
+                Monto total: $${reserva.montoTotal}
+            </p>
+            ${alertaSena}
+            ${botonPagar}
+        `;
+
+        contenedor.appendChild(tarjeta);
                             });
                         })
                         .catch(error => {

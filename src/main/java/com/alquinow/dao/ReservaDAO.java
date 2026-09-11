@@ -22,12 +22,12 @@ public class ReservaDAO {
      * ID generado.
      */
     public int crear(Reserva r) throws SQLException {
-        String sqlReserva
-                = "INSERT INTO Reserva "
-                + "(ID_comprador_fk, ID_propiedad_fk, fecha_inicio, fecha_final, "
-                + " estado, monto_total, fecha_reserva, dias_cancelacion_aplicados, "
-                + " fecha_limite_cancelacion) "
-                + "VALUES (?, ?, ?, ?, ?, ?, CURDATE(), ?, ?)";
+        String sqlReserva =
+            "INSERT INTO Reserva "
+            + "(ID_comprador_fk, ID_propiedad_fk, fecha_inicio, fecha_final, "
+            + " estado, monto_total, fecha_reserva, dias_cancelacion_aplicados, "
+            + " fecha_limite_cancelacion, fecha_limite_pago) "
+            + "VALUES (?, ?, ?, ?, ?, ?, CURDATE(), ?, ?, ?)";
 
         String sqlDisponibilidad
                 = "INSERT INTO Disponibilidad (ID_propiedad_fk, fecha, estado) VALUES (?, ?, 'Ocupado')";
@@ -39,21 +39,23 @@ public class ReservaDAO {
 
             int idGenerado = -1;
 
-            // 1. Insertar la reserva
             try (PreparedStatement ps = con.prepareStatement(sqlReserva, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setInt(1, r.getIdCompradorFk());
                 ps.setInt(2, r.getIdPropiedadFk());
                 ps.setDate(3, r.getFechaInicio());
                 ps.setDate(4, r.getFechaFinal());
-                ps.setString(5, r.getEstado() == null ? "pendiente" : r.getEstado());
+                ps.setString(5, r.getEstado() == null ? "pendiente_sena" : r.getEstado()); // Cambiamos el estado inicial
                 ps.setBigDecimal(6, r.getMontoTotal());
-
+                
                 if (r.getDiasCancelacionAplicados() == null) {
                     ps.setNull(7, java.sql.Types.INTEGER);
                 } else {
                     ps.setInt(7, r.getDiasCancelacionAplicados());
                 }
                 ps.setDate(8, r.getFechaLimiteCancelacion());
+                
+                // Enviamos la hora límite exacta calculada
+                ps.setTimestamp(9, r.getFechaLimitePago());
 
                 ps.executeUpdate();
 
@@ -121,6 +123,7 @@ public class ReservaDAO {
                     r.setCiudad(rs.getString("ciudad_prop"));
                     r.setCalle(rs.getString("calle_prop"));
                     r.setAltura(rs.getInt("altura_prop"));
+                    r.setFechaLimitePago(rs.getTimestamp("fecha_limite_pago"));
                     lista.add(r);
                 }
             }

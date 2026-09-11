@@ -62,7 +62,8 @@ public class ReservaServlet extends HttpServlet {
                   .append("\"fechaInicio\":\"").append(r.getFechaInicio()).append("\",")
                   .append("\"fechaFinal\":\"").append(r.getFechaFinal()).append("\",")
                   .append("\"estado\":\"").append(safe(r.getEstado())).append("\",")
-                  .append("\"montoTotal\":").append(r.getMontoTotal())
+                  .append("\"montoTotal\":").append(r.getMontoTotal()).append(",")
+                  .append("\"fechaLimitePago\":\"").append(r.getFechaLimitePago()).append("\"")
                   .append("}");
                 if (i < reservas.size() - 1) {
                     sb.append(",");
@@ -134,8 +135,14 @@ public class ReservaServlet extends HttpServlet {
             r.setIdPropiedadFk(idPropiedad);
             r.setFechaInicio(Date.valueOf(inicio));
             r.setFechaFinal(Date.valueOf(fin));
-            r.setEstado("pendiente");
+            r.setEstado("pendiente_sena"); // El nuevo estado esperando el pago
             r.setMontoTotal(monto);
+
+            // Calculamos la hora exacta en la que vence la reserva si no paga la seña
+            int horasLimite = p.getHorasLimitePago() > 0 ? p.getHorasLimitePago() : 24; // 24hs por defecto
+            java.time.LocalDateTime ahora = java.time.LocalDateTime.now();
+            java.time.LocalDateTime limitePago = ahora.plusHours(horasLimite);
+            r.setFechaLimitePago(java.sql.Timestamp.valueOf(limitePago));
 
             // Fecha límite de cancelación según la política de la propiedad
             Integer diasCancel = p.getDiasCancelacionSinPenalizacion();
