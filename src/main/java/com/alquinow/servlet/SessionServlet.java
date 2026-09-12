@@ -26,7 +26,7 @@ public class SessionServlet extends HttpServlet {
             Usuario u = (Usuario) session.getAttribute("usuario");
             
             // Mandamos ambos permisos en formato JSON (true o false)
-            out.print("{\"conectado\": true, \"esVendedor\": " + u.isVendedor() + ", \"esHuesped\": " + u.isHuesped() + "}");
+           out.print("{\"conectado\": true, \"esVendedor\": " + u.isVendedor() + ", \"esHuesped\": " + u.isHuesped() + ", \"usuario\": {\"idUsuario\": " + u.getIdUsuario() + "}}");
         } else {
             // Nadie logueado
             out.print("{\"conectado\": false}");

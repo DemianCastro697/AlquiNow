@@ -33,4 +33,4 @@ fetch('api/session')
       }
     }
   })
-  .catch(error => console.error("Error chequeando la sesión:", error));s
+  .catch(error => console.error("Error chequeando la sesión:", error));
