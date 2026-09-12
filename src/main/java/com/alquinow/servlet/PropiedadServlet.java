@@ -112,26 +112,41 @@ public class PropiedadServlet extends HttpServlet {
             p.setEstadiaMinima(parseEntero(req.getParameter("estadia_minima")));
             p.setMetrosCuadrados(parseEntero(req.getParameter("metros_cuadrados")));
             p.setCantPersonas(parseEntero(req.getParameter("cant_personas")));
-            p.setPiso(parseEntero(req.getParameter("piso")));
+            p.setPiso(req.getParameter("piso"));
             p.setDescripcion(req.getParameter("descripcion"));
             p.setDiasCancelacionSinPenalizacion(
                     parseEntero(req.getParameter("dias_cancelacion_sin_penalizacion")));
-            p.setDisponibilidadInmediata(
-                    "true".equals(req.getParameter("disponibilidad_inmediata"))
-                    || "on".equals(req.getParameter("disponibilidad_inmediata")));
-
             String precio = req.getParameter("precio_por_noche");
             if (precio != null && !precio.isBlank()) {
                 p.setPrecioPorNoche(new BigDecimal(precio));
             }
+            
+            // 1. Leemos el piso como texto directamente del parámetro
+        String pisoTexto = req.getParameter("piso");
 
-            int id = propiedadDAO.crear(p);
+        // 2. Verificamos si ya existe en la base de datos
+        boolean yaExiste = propiedadDAO.existePropiedad(
+            p.getCalle(), 
+            p.getAltura(), 
+            p.getCiudad(), 
+            pisoTexto
+        );
+
+        // 3. Si existe, devolvemos un error al frontend y cortamos la ejecución
+        if (yaExiste) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST); // Código de error 400
+            out.print("{\"ok\":false, \"mensaje\":\"Error: Ya existe una propiedad en esa dirección exacta.\"}");
+            return; // Evita que siga bajando y llegue al DAO.crear(p)
+        }
+            
+        int id = propiedadDAO.crear(p);
             out.print("{\"ok\":" + (id > 0) + ",\"id\":" + id + "}");
 
         } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            out.print("{\"error\":\"" + escapar(e.getMessage()) + "\"}");
-        }
+    e.printStackTrace(); // <--- Agregamos esto para ver el error real en la consola
+    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    out.print("{\"error\":\"" + escapar(e.getMessage()) + "\"}");
+}
     }
 
     // ---------- Helpers de parseo ----------
@@ -164,7 +179,7 @@ public class PropiedadServlet extends HttpServlet {
         return sb.append("]").toString();
     }
 
-    private String propiedadAJson(Propiedad p) {
+   private String propiedadAJson(Propiedad p) {
         return "{"
             + "\"id\":" + p.getIdPropiedad() + ","
             + "\"idVendedor\":" + p.getIdVendedorFk() + ","
@@ -176,9 +191,8 @@ public class PropiedadServlet extends HttpServlet {
             + "\"precioPorNoche\":" + p.getPrecioPorNoche() + ","
             + "\"metrosCuadrados\":" + p.getMetrosCuadrados() + ","
             + "\"cantPersonas\":" + p.getCantPersonas() + ","
-            + "\"piso\":" + p.getPiso() + ","
-            + "\"descripcion\":\"" + escapar(p.getDescripcion()) + "\","
-            + "\"disponibilidadInmediata\":" + p.isDisponibilidadInmediata()
+            + "\"piso\":\"" + escapar(p.getPiso()) + "\"," // <-- ACÁ AGREGAMOS LAS COMILLAS Y EL ESCAPAR
+            + "\"descripcion\":\"" + escapar(p.getDescripcion()) + "\"" // <-- ACÁ LE SACAMOS LA COMA QUE SOBRABA
             + "}";
     }
 

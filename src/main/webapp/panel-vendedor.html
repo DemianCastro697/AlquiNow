@@ -24,56 +24,69 @@
       <input type="text" id="calle">
 
       <label>Altura</label>
-      <input type="number" name="altura" min="1" step="1" placeholder="Ej: 542">
+      <input type="number" id="altura" name="altura" min="1" step="1" placeholder="Ej: 542">
 
       <label>Ciudad</label>
       <input type="text" id="ciudad">
+      
+      <!-- Input oculto de piso -->
+      <input type="hidden" id="piso" name="piso" value="">
+
+      <!-- Casilla de edificio -->
+      <label style="display:flex; align-items:center; gap:.5rem; margin-top:1rem; margin-bottom: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="es_edificio" onchange="actualizarPiso()" style="width:auto;">
+          La propiedad es un departamento / edificio
+      </label>
+
+      <!-- Contenedor desplegable -->
+<div id="caja_departamento" style="display:none; padding: 15px; background-color: #f1f1f1; border-radius: 5px; margin-bottom: 1rem;">
+    <label style="margin-top: 0;">Piso</label>
+    <input type="text" id="piso_input" onkeyup="actualizarPiso()" placeholder="Ej: 3 o PB" style="margin-bottom: 10px;">
+    
+    <label>Departamento</label>
+    <input type="text" id="depto_input" onkeyup="actualizarPiso()" placeholder="Ej: B, 4 o 303">
+</div>
 
       <label>Provincia</label>
       <select name="provincia" id="provincia" required>
-    <option value="" disabled selected>Seleccioná una provincia...</option>
-    <option value="Buenos Aires">Buenos Aires</option>
-    <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
-    <option value="Catamarca">Catamarca</option>
-    <option value="Chaco">Chaco</option>
-    <option value="Chubut">Chubut</option>
-    <option value="Córdoba">Córdoba</option>
-    <option value="Corrientes">Corrientes</option>
-    <option value="Entre Ríos">Entre Ríos</option>
-    <option value="Formosa">Formosa</option>
-    <option value="Jujuy">Jujuy</option>
-    <option value="La Pampa">La Pampa</option>
-    <option value="La Rioja">La Rioja</option>
-    <option value="Mendoza">Mendoza</option>
-    <option value="Misiones">Misiones</option>
-    <option value="Neuquén">Neuquén</option>
-    <option value="Río Negro">Río Negro</option>
-    <option value="Salta">Salta</option>
-    <option value="San Juan">San Juan</option>
-    <option value="San Luis">San Luis</option>
-    <option value="Santa Cruz">Santa Cruz</option>
-    <option value="Santa Fe">Santa Fe</option>
-    <option value="Santiago del Estero">Santiago del Estero</option>
-    <option value="Tierra del Fuego">Tierra del Fuego</option>
-    <option value="Tucumán">Tucumán</option>
-</select>
+        <option value="" disabled selected>Seleccioná una provincia...</option>
+        <option value="Buenos Aires">Buenos Aires</option>
+        <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
+        <option value="Catamarca">Catamarca</option>
+        <option value="Chaco">Chaco</option>
+        <option value="Chubut">Chubut</option>
+        <option value="Córdoba">Córdoba</option>
+        <option value="Corrientes">Corrientes</option>
+        <option value="Entre Ríos">Entre Ríos</option>
+        <option value="Formosa">Formosa</option>
+        <option value="Jujuy">Jujuy</option>
+        <option value="La Pampa">La Pampa</option>
+        <option value="La Rioja">La Rioja</option>
+        <option value="Mendoza">Mendoza</option>
+        <option value="Misiones">Misiones</option>
+        <option value="Neuquén">Neuquén</option>
+        <option value="Río Negro">Río Negro</option>
+        <option value="Salta">Salta</option>
+        <option value="San Juan">San Juan</option>
+        <option value="San Luis">San Luis</option>
+        <option value="Santa Cruz">Santa Cruz</option>
+        <option value="Santa Fe">Santa Fe</option>
+        <option value="Santiago del Estero">Santiago del Estero</option>
+        <option value="Tierra del Fuego">Tierra del Fuego</option>
+        <option value="Tucumán">Tucumán</option>
+      </select>
 
       <label>Precio por noche ($)</label>
-      <input type="number" name="precio_por_noche" min="1" step="1" placeholder="Ej: 70000">
+      <input type="number" id="precio_por_noche" name="precio_por_noche" min="1" step="1" placeholder="Ej: 70000">
 
       <label>Capacidad (personas)</label>
-      <input type="number" name="cant_personas" min="1" step="1" placeholder="Ej: 4">
+      <input type="number" id="cant_personas" name="cant_personas" min="1" step="1" placeholder="Ej: 4">
 
       <label>Metros cuadrados</label>
-      <input type="number" name="metros_cuadrados" min="1" step="1" placeholder="Ej: 50">
+      <input type="number" id="metros_cuadrados" name="metros_cuadrados" min="1" step="1" placeholder="Ej: 50">
 
       <label>Descripción</label>
       <textarea id="descripcion" rows="3"></textarea>
-
-      <label style="display:flex; align-items:center; gap:.5rem; margin-top:1rem;">
-        <input type="checkbox" id="disponibilidad_inmediata" style="width:auto;">
-        Disponible de inmediato
-      </label>
 
       <button class="btn btn-block" onclick="publicar()">Publicar propiedad</button>
     </div>
@@ -88,18 +101,39 @@
   </main>
 
   <script>
-    // Cargar automáticamente las publicaciones al abrir el panel
     document.addEventListener("DOMContentLoaded", () => {
       cargarMisPropiedades();
     });
 
+    function actualizarPiso() {
+        const checkbox = document.getElementById('es_edificio');
+        const caja = document.getElementById('caja_departamento');
+        const pisoOculto = document.getElementById('piso');
+        
+        if (checkbox.checked) {
+            caja.style.display = 'block';
+            const p = document.getElementById('piso_input').value.trim();
+            const d = document.getElementById('depto_input').value.trim();
+            
+            if (p !== "" || d !== "") {
+                pisoOculto.value = "Piso " + p + " - Dpto " + d;
+            } else {
+                pisoOculto.value = "";
+            }
+        } else {
+            caja.style.display = 'none';
+            document.getElementById('piso_input').value = '';
+            document.getElementById('depto_input').value = '';
+            pisoOculto.value = "";
+        }
+    }
+
     function publicar() {
       const body = new URLSearchParams();
-      const campos = ["calle","altura","ciudad","provincia","precio_por_noche",
+      // ACÁ SE AGREGÓ "piso" PARA QUE VIAJE AL SERVIDOR
+      const campos = ["calle","altura","ciudad","piso","provincia","precio_por_noche",
                       "cant_personas","metros_cuadrados","descripcion"];
       campos.forEach(c => body.append(c, document.getElementById(c).value));
-      body.append("disponibilidad_inmediata",
-                  document.getElementById("disponibilidad_inmediata").checked);
 
       fetch("propiedades", {
         method: "POST",
@@ -111,15 +145,32 @@
         const msg = document.getElementById("msg");
         if (res.ok) {
           msg.innerHTML = '<div class="alerta alerta-ok">¡Propiedad publicada!</div>';
-          document.querySelector("form")?.reset(); // Limpia el formulario si existe
+          
+          // Limpia todas las cajitas
+          document.getElementById('calle').value = '';
+          document.getElementById('altura').value = '';
+          document.getElementById('ciudad').value = '';
+          document.getElementById('piso_input').value = '';
+          document.getElementById('depto_input').value = '';
+          document.getElementById('piso').value = '';
+          document.getElementById('es_edificio').checked = false;
+          actualizarPiso(); // Oculta la caja de nuevo
+          document.getElementById('provincia').value = '';
+          document.getElementById('precio_por_noche').value = '';
+          document.getElementById('cant_personas').value = '';
+          document.getElementById('metros_cuadrados').value = '';
+          document.getElementById('descripcion').value = '';
+          document.getElementById('disponibilidad_inmediata').checked = false;
+
           cargarMisPropiedades(); // Refresca la lista de abajo automáticamente
         } else {
-          msg.innerHTML = `<div class="alerta alerta-error">${res.error || 'Error al publicar.'}</div>`;
+          // Te muestra el mensaje que programamos en PropiedadServlet (Error: Ya existe...)
+          msg.innerHTML = `<div class="alerta alerta-error">${res.mensaje || res.error || 'Error al publicar.'}</div>`;
         }
       })
       .catch(() => {
         document.getElementById("msg").innerHTML =
-          '<div class="alerta alerta-error">Iniciá sesión como anfitrión.</div>';
+          '<div class="alerta alerta-error">Error de conexión o de servidor.</div>';
       });
     }
 
@@ -148,6 +199,12 @@
               contenedor.innerHTML = '';
 
               misProps.forEach(prop => {
+                // ACÁ AGREGUÉ EL PISO PARA QUE SE VEA EN LA TARJETITA
+                let extraPiso = "";
+                if (prop.piso && prop.piso.trim() !== "" && prop.piso !== "0") {
+                    extraPiso = ` - ${prop.piso}`;
+                }
+
                 const tarjeta = document.createElement('div');
                 tarjeta.style.border = "1px solid #ddd";
                 tarjeta.style.borderRadius = "8px";
@@ -155,7 +212,7 @@
                 tarjeta.style.backgroundColor = "#fff";
 
                 tarjeta.innerHTML = `
-                  <h3 style="margin-top: 0; color: #333;">${prop.calle} ${prop.altura}</h3>
+                  <h3 style="margin-top: 0; color: #333;">${prop.calle} ${prop.altura}${extraPiso}</h3>
                   <p style="color: var(--gris); font-size: 0.9rem; margin-bottom: 0.5rem;">${prop.ciudad}, ${prop.provincia}</p>
                   <p style="margin-bottom: 0.5rem;">${prop.descripcion}</p>
                   <p style="font-size: 0.9rem; margin-bottom: 1rem;"><strong>Capacidad:</strong> ${prop.cantPersonas} personas</p>

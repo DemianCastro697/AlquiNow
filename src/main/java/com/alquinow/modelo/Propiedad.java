@@ -21,10 +21,9 @@ public class Propiedad {
     private BigDecimal precioPorNoche;
     private Integer metrosCuadrados;
     private Integer cantPersonas;
-    private Integer piso;
+    private String piso;
 
     private String descripcion;
-    private boolean disponibilidadInmediata;
     private Integer diasCancelacionSinPenalizacion;
 
     public Propiedad() {
@@ -126,13 +125,8 @@ public class Propiedad {
         this.cantPersonas = cantPersonas;
     }
 
-    public Integer getPiso() {
-        return piso;
-    }
-
-    public void setPiso(Integer piso) {
-        this.piso = piso;
-    }
+    public String getPiso() { return piso; }
+public void setPiso(String piso) { this.piso = piso; }
 
     public String getDescripcion() {
         return descripcion;
@@ -140,14 +134,6 @@ public class Propiedad {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
-    }
-
-    public boolean isDisponibilidadInmediata() {
-        return disponibilidadInmediata;
-    }
-
-    public void setDisponibilidadInmediata(boolean disponibilidadInmediata) {
-        this.disponibilidadInmediata = disponibilidadInmediata;
     }
 
     public Integer getDiasCancelacionSinPenalizacion() {

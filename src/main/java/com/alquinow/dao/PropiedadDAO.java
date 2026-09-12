@@ -42,10 +42,9 @@ public class PropiedadDAO {
             ps.setBigDecimal(9, p.getPrecioPorNoche());
             setIntOrNull(ps, 10, p.getMetrosCuadrados());
             setIntOrNull(ps, 11, p.getCantPersonas());
-            setIntOrNull(ps, 12, p.getPiso());
+            ps.setString(12, p.getPiso());;
             ps.setString(13, p.getDescripcion());
-            ps.setBoolean(14, p.isDisponibilidadInmediata());
-            setIntOrNull(ps, 15, p.getDiasCancelacionSinPenalizacion());
+            setIntOrNull(ps, 14, p.getDiasCancelacionSinPenalizacion());
 
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -131,11 +130,10 @@ public class PropiedadDAO {
             ps.setBigDecimal(8, p.getPrecioPorNoche());
             setIntOrNull(ps, 9, p.getMetrosCuadrados());
             setIntOrNull(ps, 10, p.getCantPersonas());
-            setIntOrNull(ps, 11, p.getPiso());
+            ps.setString(11, p.getPiso());
             ps.setString(12, p.getDescripcion());
-            ps.setBoolean(13, p.isDisponibilidadInmediata());
-            setIntOrNull(ps, 14, p.getDiasCancelacionSinPenalizacion());
-            ps.setInt(15, p.getIdPropiedad());
+            setIntOrNull(ps, 13, p.getDiasCancelacionSinPenalizacion());
+            ps.setInt(14, p.getIdPropiedad());
 
             return ps.executeUpdate() > 0;
         }
@@ -197,11 +195,43 @@ public class PropiedadDAO {
         p.setPrecioPorNoche(rs.getBigDecimal("precio_por_noche"));
         p.setMetrosCuadrados(rs.getInt("metros_cuadrados"));
         p.setCantPersonas(rs.getInt("cant_personas"));
-        p.setPiso(rs.getInt("piso"));
+        p.setPiso(rs.getString("piso"));
         p.setDescripcion(rs.getString("descripcion"));
-        p.setDisponibilidadInmediata(rs.getBoolean("disponibilidad_inmediata"));
         p.setDiasCancelacionSinPenalizacion(
                 rs.getInt("dias_cancelacion_sin_penalizacion"));
         return p;
     }
-}
+    
+    public boolean existePropiedad(String calle, int altura, String ciudad, String piso) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM propiedad WHERE calle = ? AND altura = ? AND ciudad = ?";
+        
+        if (piso != null && !piso.trim().isEmpty()) {
+            sql += " AND piso = ?";
+        } else {
+            sql += " AND (piso IS NULL OR piso = '')";
+        }
+        
+        // 1. Pedimos la conexión AFUERA del try para que Java NO la cierre al terminar
+        Connection con = Conexion.getConexion(); 
+        
+        // 2. Solo metemos el PreparedStatement en el try
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, calle);
+            ps.setInt(2, altura);
+            ps.setString(3, ciudad);
+            
+            if (piso != null && !piso.trim().isEmpty()) {
+                ps.setString(4, piso);
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; 
+                }
+            }
+        }
+        // Retorna falso si no hay duplicados y deja la conexión viva para el método crear()
+        return false;
+    }
+    }
+
