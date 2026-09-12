@@ -24,30 +24,48 @@
       <input type="text" id="calle">
 
       <label>Altura</label>
-      <input type="number" id="altura">
+      <input type="number" name="altura" min="1" step="1" placeholder="Ej: 542">
 
       <label>Ciudad</label>
       <input type="text" id="ciudad">
 
       <label>Provincia</label>
-      <select id="provincia">
-        <option>Buenos Aires</option>
-        <option>CABA</option>
-        <option>Córdoba</option>
-        <option>Mendoza</option>
-        <option>Neuquén</option>
-        <option>Río Negro</option>
-        <option>Santa Fe</option>
-      </select>
+      <select name="provincia" id="provincia" required>
+    <option value="" disabled selected>Seleccioná una provincia...</option>
+    <option value="Buenos Aires">Buenos Aires</option>
+    <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
+    <option value="Catamarca">Catamarca</option>
+    <option value="Chaco">Chaco</option>
+    <option value="Chubut">Chubut</option>
+    <option value="Córdoba">Córdoba</option>
+    <option value="Corrientes">Corrientes</option>
+    <option value="Entre Ríos">Entre Ríos</option>
+    <option value="Formosa">Formosa</option>
+    <option value="Jujuy">Jujuy</option>
+    <option value="La Pampa">La Pampa</option>
+    <option value="La Rioja">La Rioja</option>
+    <option value="Mendoza">Mendoza</option>
+    <option value="Misiones">Misiones</option>
+    <option value="Neuquén">Neuquén</option>
+    <option value="Río Negro">Río Negro</option>
+    <option value="Salta">Salta</option>
+    <option value="San Juan">San Juan</option>
+    <option value="San Luis">San Luis</option>
+    <option value="Santa Cruz">Santa Cruz</option>
+    <option value="Santa Fe">Santa Fe</option>
+    <option value="Santiago del Estero">Santiago del Estero</option>
+    <option value="Tierra del Fuego">Tierra del Fuego</option>
+    <option value="Tucumán">Tucumán</option>
+</select>
 
       <label>Precio por noche ($)</label>
-      <input type="number" id="precio_por_noche" step="0.01">
+      <input type="number" name="precio_por_noche" min="1" step="1" placeholder="Ej: 70000">
 
       <label>Capacidad (personas)</label>
-      <input type="number" id="cant_personas">
+      <input type="number" name="cant_personas" min="1" step="1" placeholder="Ej: 4">
 
       <label>Metros cuadrados</label>
-      <input type="number" id="metros_cuadrados">
+      <input type="number" name="metros_cuadrados" min="1" step="1" placeholder="Ej: 50">
 
       <label>Descripción</label>
       <textarea id="descripcion" rows="3"></textarea>

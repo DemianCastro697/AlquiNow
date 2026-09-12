@@ -33,24 +33,41 @@
       </div>
       <div class="campo">
         <label for="f-provincia">Provincia</label>
-        <select id="f-provincia">
-          <option value="">Todas</option>
-          <option>Buenos Aires</option>
-          <option>CABA</option>
-          <option>Córdoba</option>
-          <option>Mendoza</option>
-          <option>Neuquén</option>
-          <option>Río Negro</option>
-          <option>Santa Fe</option>
-        </select>
+        <select name="provincia" id="provincia">
+    <option value="">Todas las provincias</option>
+    <option value="Buenos Aires">Buenos Aires</option>
+    <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
+    <option value="Catamarca">Catamarca</option>
+    <option value="Chaco">Chaco</option>
+    <option value="Chubut">Chubut</option>
+    <option value="Córdoba">Córdoba</option>
+    <option value="Corrientes">Corrientes</option>
+    <option value="Entre Ríos">Entre Ríos</option>
+    <option value="Formosa">Formosa</option>
+    <option value="Jujuy">Jujuy</option>
+    <option value="La Pampa">La Pampa</option>
+    <option value="La Rioja">La Rioja</option>
+    <option value="Mendoza">Mendoza</option>
+    <option value="Misiones">Misiones</option>
+    <option value="Neuquén">Neuquén</option>
+    <option value="Río Negro">Río Negro</option>
+    <option value="Salta">Salta</option>
+    <option value="San Juan">San Juan</option>
+    <option value="San Luis">San Luis</option>
+    <option value="Santa Cruz">Santa Cruz</option>
+    <option value="Santa Fe">Santa Fe</option>
+    <option value="Santiago del Estero">Santiago del Estero</option>
+    <option value="Tierra del Fuego">Tierra del Fuego</option>
+    <option value="Tucumán">Tucumán</option>
+</select>
       </div>
       <div class="campo">
         <label for="f-precio">Precio máx / noche</label>
-        <input type="number" id="f-precio" placeholder="$">
+        <input type="number" id="f-precio" placeholder="$" min="1">
       </div>
       <div class="campo">
         <label for="f-personas">Personas (mín)</label>
-        <input type="number" id="f-personas" placeholder="2">
+        <input type="number" id="f-personas" placeholder="2" min="1">
       </div>
       <button class="btn" onclick="buscar()">Buscar</button>
     </div>
