@@ -3,6 +3,8 @@ package com.alquinow.modelo;
 public class Usuario {
 
     private int idUsuario;
+    // NUEVA VARIABLE AGREGADA ACÁ
+    private String nombre;
     private String contrasena; 
     private String dni;
     private String mail;
@@ -11,7 +13,7 @@ public class Usuario {
     private boolean esVendedor;
     private boolean esHuesped;
     
-    // NUEVAS VARIABLES PARA EL MAIL
+    // VARIABLES PARA EL MAIL
     private boolean cuentaActiva;
     private String codigoVerificacion;
 
@@ -26,6 +28,10 @@ public class Usuario {
 
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
+
+    // GETTER Y SETTER DEL NOMBRE
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
     public String getContrasena() { return contrasena; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }

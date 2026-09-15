@@ -13,15 +13,17 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
- * Maneja login (POST /login) y logout (GET /logout).
- * Usa HttpSession: al loguearse, guarda el usuario en sesión.
+ * Maneja login (POST /login) y logout (GET /logout). Usa HttpSession: al
+ * loguearse, guarda el usuario en sesión.
  */
 @WebServlet({"/login", "/logout"})
 public class LoginServlet extends HttpServlet {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    /** Login. */
+    /**
+     * Login.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -37,14 +39,8 @@ public class LoginServlet extends HttpServlet {
                 HttpSession sesion = req.getSession(true);
                 sesion.setAttribute("usuario", u);
                 
-                // Redirigimos según los nuevos permisos (booleanos)
-                // Si la cuenta tiene activado el permiso de vendedor, lo mandamos al panel.
-                if (u.isVendedor()) {
-                    resp.sendRedirect(req.getContextPath() + "/panel-vendedor.html");
-                } else {
-                    // Si solo es huésped, va directo al catálogo
-                    resp.sendRedirect(req.getContextPath() + "/index.html");
-                }
+                // Redirigimos a todos los usuarios directamente al inicio
+                resp.sendRedirect(req.getContextPath() + "/index.html");
             } else {
                 resp.sendRedirect(req.getContextPath() + "/login.html?error=true");
             }
@@ -53,7 +49,9 @@ public class LoginServlet extends HttpServlet {
         }
     }
 
-    /** Logout. */
+    /**
+     * Logout.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {

@@ -17,9 +17,9 @@ import java.sql.Statement;
 public class UsuarioDAO {
 
     public int registrar(Usuario u, String rol) throws SQLException {
-        // 1. Agregamos cuenta_activa y codigo_verificacion al INSERT
+        // MODIFICACIÓN: Agregamos "nombre" al INSERT y un "?" extra
         String sqlUsuario =
-            "INSERT INTO Usuario (contrasena, dni, mail, tel, es_vendedor, es_huesped, cuenta_activa, codigo_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO Usuario (nombre, contrasena, dni, mail, tel, es_vendedor, es_huesped, cuenta_activa, codigo_verificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         Connection con = null;
         try {
@@ -30,14 +30,16 @@ public class UsuarioDAO {
             try (PreparedStatement ps = con.prepareStatement(
                     sqlUsuario, Statement.RETURN_GENERATED_KEYS)) {
 
-                ps.setString(1, Password.hashear(u.getContrasena()));
-                ps.setString(2, u.getDni());
-                ps.setString(3, u.getMail());
-                ps.setString(4, u.getTel());
-                ps.setBoolean(5, "vendedor".equalsIgnoreCase(rol));
-                ps.setBoolean(6, true); // Todos son huéspedes por defecto
-                ps.setBoolean(7, false); // Nace inactiva hasta que verifique el código
-                ps.setString(8, u.getCodigoVerificacion()); // Guardamos el código de 6 dígitos
+                // MODIFICACIÓN: Acomodamos los números de los parámetros
+                ps.setString(1, u.getNombre()); // Acá pasamos el nombre
+                ps.setString(2, Password.hashear(u.getContrasena()));
+                ps.setString(3, u.getDni());
+                ps.setString(4, u.getMail());
+                ps.setString(5, u.getTel());
+                ps.setBoolean(6, "vendedor".equalsIgnoreCase(rol));
+                ps.setBoolean(7, true); // Todos son huéspedes por defecto
+                ps.setBoolean(8, false); // Nace inactiva hasta que verifique el código
+                ps.setString(9, u.getCodigoVerificacion()); // Guardamos el código de 6 dígitos
 
                 ps.executeUpdate();
 
@@ -51,14 +53,14 @@ public class UsuarioDAO {
                 }
             }
 
-            // MODIFICACIÓN: TODOS son compradores por defecto (para poder guardar favoritos y alquilar)
+            // TODOS son compradores por defecto (para poder guardar favoritos y alquilar)
             try (PreparedStatement ps = con.prepareStatement(
                     "INSERT INTO Comprador (ID_usuario) VALUES (?)")) {
                 ps.setInt(1, idGenerado);
                 ps.executeUpdate();
             }
 
-            // MODIFICACIÓN: SI ADEMÁS eligió ser vendedor, lo agregamos también a su respectiva tabla
+            // SI ADEMÁS eligió ser vendedor, lo agregamos también a su respectiva tabla
             if ("vendedor".equalsIgnoreCase(rol)) {
                 try (PreparedStatement ps = con.prepareStatement(
                         "INSERT INTO Vendedor (ID_usuario, verificado) VALUES (?, FALSE)")) {
@@ -177,13 +179,16 @@ public class UsuarioDAO {
     private Usuario mapear(ResultSet rs) throws SQLException {
         Usuario u = new Usuario();
         u.setIdUsuario(rs.getInt("ID_usuario"));
+        
+        // MODIFICACIÓN: Recuperamos el nombre de la BD
+        u.setNombre(rs.getString("nombre"));
+        
         u.setContrasena(rs.getString("contrasena"));
         u.setDni(rs.getString("dni"));
         u.setMail(rs.getString("mail"));
         u.setTel(rs.getString("tel"));
         u.setEsVendedor(rs.getBoolean("es_vendedor"));
         u.setEsHuesped(rs.getBoolean("es_huesped"));
-        // Mapeamos los nuevos campos de verificación
         u.setCuentaActiva(rs.getBoolean("cuenta_activa"));
         u.setCodigoVerificacion(rs.getString("codigo_verificacion"));
         return u;

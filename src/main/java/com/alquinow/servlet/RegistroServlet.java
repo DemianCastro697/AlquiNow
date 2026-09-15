@@ -28,14 +28,16 @@ public class RegistroServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8");
 
+        // MODIFICACIÓN 1: Capturamos el nombre que viene del HTML
+        String nombre = req.getParameter("nombre");
         String mail = req.getParameter("mail");
         String pass = req.getParameter("contrasena");
         String dni = req.getParameter("dni");
         String tel = req.getParameter("tel");
         String rol = "comprador";
 
-        // 1. Validación de campos básicos
-        if (mail == null || mail.isBlank() || pass == null || pass.isBlank()) {
+        // 1. Validación de campos básicos (Agregamos validación para el nombre)
+        if (nombre == null || nombre.isBlank() || mail == null || mail.isBlank() || pass == null || pass.isBlank()) {
             resp.sendRedirect(req.getContextPath() + "/registro.html?error=vacios");
             return;
         }
@@ -71,11 +73,15 @@ public class RegistroServlet extends HttpServlet {
             String codigoGenerado = String.format("%06d", numeroAleatorio);
 
             Usuario u = new Usuario();
+            
+            // MODIFICACIÓN 2: Le inyectamos el nombre al objeto Usuario
+            u.setNombre(nombre);
+            
             u.setMail(mail);
             u.setContrasena(pass); // el DAO la hashea
             u.setDni(dni);
             u.setTel(tel);
-            u.setCodigoVerificacion(codigoGenerado); // Se lo inyectamos al usuario
+            u.setCodigoVerificacion(codigoGenerado);
 
             int id = usuarioDAO.registrar(u, rol);
             
