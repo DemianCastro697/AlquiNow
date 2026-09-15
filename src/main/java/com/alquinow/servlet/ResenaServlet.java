@@ -1,7 +1,9 @@
 package com.alquinow.servlet;
 
 import com.alquinow.dao.ResenaDAO;
+import com.alquinow.dao.ReservaDAO; // Importación nueva
 import com.alquinow.modelo.Resena;
+import com.alquinow.modelo.Reserva; // Importación nueva
 import com.alquinow.modelo.Usuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,12 +14,15 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @WebServlet("/resenas")
 public class ResenaServlet extends HttpServlet {
 
     private final ResenaDAO resenaDAO = new ResenaDAO();
+    private final ReservaDAO reservaDAO = new ReservaDAO(); // Instanciamos el DAO para buscar las fechas
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -68,11 +73,13 @@ public class ResenaServlet extends HttpServlet {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         
         String idPropiedadStr = req.getParameter("idPropiedad");
+        String idReservaStr = req.getParameter("idReserva"); // Capturamos el ID del viaje
         String calificacionStr = req.getParameter("calificacion");
         String comentario = req.getParameter("comentario");
 
         try {
             int idPropiedad = Integer.parseInt(idPropiedadStr);
+            int idReserva = Integer.parseInt(idReservaStr);
             int calificacion = Integer.parseInt(calificacionStr);
             
             if (calificacion < 1 || calificacion > 5) {
@@ -80,9 +87,37 @@ public class ResenaServlet extends HttpServlet {
                 return;
             }
 
+            // 1. Barrera Anti-Spam: ¿Ya hay una reseña para esta reserva?
+            if (resenaDAO.existeResenaParaReserva(idReserva)) {
+                out.print("{\"error\":\"Ya publicaste una reseña para esta estadía.\"}");
+                return;
+            }
+
+            // 2. Barrera de Tiempo: Traemos los datos de la reserva
+            // ATENCIÓN: Ajustá "buscarPorId" y "getFechaFin" si los llamaste distinto en tu proyecto
+            Reserva reserva = reservaDAO.buscarPorId(idReserva);
+            if (reserva == null) {
+                out.print("{\"error\":\"No se encontró la reserva indicada.\"}");
+                return;
+            }
+
+            LocalDate fechaSalida = reserva.getFechaFinal().toLocalDate();
+            LocalDate hoy = LocalDate.now();
+            long diasDesdeSalida = ChronoUnit.DAYS.between(fechaSalida, hoy);
+
+            if (diasDesdeSalida < 0) {
+                out.print("{\"error\":\"No podés reseñar una estadía que todavía no terminó.\"}");
+                return;
+            } else if (diasDesdeSalida > 60) {
+                out.print("{\"error\":\"El plazo máximo de 60 días para reseñar ya expiró.\"}");
+                return;
+            }
+
+            // 3. Si pasó todos los controles, ensamblamos y guardamos
             Resena resena = new Resena();
             resena.setIdPropiedad(idPropiedad);
             resena.setIdUsuario(usuario.getIdUsuario());
+            resena.setIdReservaFk(idReserva); // Atamos la reseña a este viaje específico
             resena.setCalificacion(calificacion);
             resena.setComentario(comentario);
 

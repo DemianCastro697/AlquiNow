@@ -57,10 +57,13 @@ public class PropiedadDAO {
     }
 
     /** Lista todas las propiedades. */
-    public List<Propiedad> listarTodas() throws SQLException {
-        return ejecutarConsulta("SELECT * FROM Propiedad ORDER BY ID_propiedad DESC",
-                new Object[]{});
-    }
+public List<Propiedad> listarTodas() throws SQLException {
+    String sql = "SELECT p.*, " +
+                 "(SELECT ROUND(AVG(puntuacion), 1) FROM resena r WHERE r.id_propiedad_fk = p.ID_propiedad) AS promedio " +
+                 "FROM Propiedad p ORDER BY p.ID_propiedad DESC";
+    
+    return ejecutarConsulta(sql, new Object[]{});
+}
 
     /** Lista las propiedades de un vendedor concreto. */
     public List<Propiedad> listarPorVendedor(int idVendedor) throws SQLException {
@@ -81,32 +84,43 @@ public class PropiedadDAO {
      * Búsqueda con filtros opcionales. Cualquier parámetro puede venir null
      * (o <= 0 para los numéricos) y simplemente no se aplica.
      */
-    public List<Propiedad> buscar(String ciudad, String provincia,
-            Integer precioMax, Integer personasMin) throws SQLException {
+   /**
+ * Búsqueda con filtros opcionales.
+ */
+public List<Propiedad> buscar(String ciudad, String provincia,
+                              Integer precioMax, Integer personasMin) throws SQLException {
+    
+    // Agregamos la subconsulta del promedio a la consulta base
+    String sqlBase = "SELECT p.*, " +
+                     "(SELECT ROUND(AVG(calificacion), 1) FROM resena r WHERE r.id_propiedad_fk = p.ID_propiedad) AS promedio " +
+                     "FROM Propiedad p WHERE 1=1";
+                     
+    StringBuilder sql = new StringBuilder(sqlBase);
+    List<Object> params = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder("SELECT * FROM Propiedad WHERE 1=1");
-        List<Object> params = new ArrayList<>();
-
-        if (ciudad != null && !ciudad.isBlank()) {
-            sql.append(" AND ciudad LIKE ?");
-            params.add("%" + ciudad + "%");
-        }
-        if (provincia != null && !provincia.isBlank()) {
-            sql.append(" AND provincia = ?");
-            params.add(provincia);
-        }
-        if (precioMax != null && precioMax > 0) {
-            sql.append(" AND precio_por_noche <= ?");
-            params.add(precioMax);
-        }
-        if (personasMin != null && personasMin > 0) {
-            sql.append(" AND cant_personas >= ?");
-            params.add(personasMin);
-        }
-        sql.append(" ORDER BY precio_por_noche ASC");
-
-        return ejecutarConsulta(sql.toString(), params.toArray());
+    if (ciudad != null && !ciudad.isBlank()) {
+        sql.append(" AND p.ciudad LIKE ?");
+        params.add("%" + ciudad + "%");
     }
+    
+    if (provincia != null && !provincia.isBlank()) {
+        sql.append(" AND p.provincia = ?");
+        params.add(provincia);
+    }
+    
+    if (precioMax != null && precioMax > 0) {
+        sql.append(" AND p.precio_por_noche <= ?");
+        params.add(precioMax);
+    }
+    
+    if (personasMin != null && personasMin > 0) {
+        // Asumiendo que tu columna se llama cant_personas
+        sql.append(" AND p.cant_personas >= ?"); 
+        params.add(personasMin);
+    }
+    
+    return ejecutarConsulta(sql.toString(), params.toArray());
+}
 
     /** Actualiza una propiedad existente. */
     public boolean actualizar(Propiedad p) throws SQLException {
@@ -197,6 +211,7 @@ public class PropiedadDAO {
         p.setCantPersonas(rs.getInt("cant_personas"));
         p.setPiso(rs.getString("piso"));
         p.setDescripcion(rs.getString("descripcion"));
+        p.setPromedioEstrellas(rs.getDouble("promedio"));
         p.setDiasCancelacionSinPenalizacion(
                 rs.getInt("dias_cancelacion_sin_penalizacion"));
         return p;

@@ -27,90 +27,203 @@
         <!-- 1. Cargamos el detector de sesiones -->
         <script src="js/session.js"></script>
 
+        <!-- CARTELES VISUALES -->
+        <div id="cartelExito" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #4CAF50; color: white; padding: 15px 25px; border-radius: 5px; box-shadow: 0px 4px 6px rgba(0,0,0,0.2); z-index: 1000; font-family: sans-serif; font-weight: bold;">
+            ✅ ¡Reseña publicada con éxito!
+        </div>
+
+        <div id="cartelError" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #f44336; color: white; padding: 15px 25px; border-radius: 5px; box-shadow: 0px 4px 6px rgba(0,0,0,0.2); z-index: 1000; font-family: sans-serif; font-weight: bold;">
+            <span id="textoError"></span>
+        </div>
+
         <!-- 2. Lógica específica de esta pantalla -->
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 cargarReservas();
             });
+
             function cargarReservas() {
                 // Le pedimos al backend la lista de reservas del usuario conectado
                 fetch('reservas')
-                        .then(response => {
-                            if (!response.ok)
-                                throw new Error("No autorizado o error del servidor");
-                            return response.json();
-                        })
-                        .then(data => {
-                            const contenedor = document.getElementById("contenedor-reservas");
-                            if (data.length === 0) {
-                                contenedor.innerHTML = '<div class="alerta">Aún no tenés reservas confirmadas. ¡Buscá tu próximo destino!</div>';
-                                return;
+                .then(response => {
+                    if (!response.ok) throw new Error("No autorizado o error del servidor");
+                    return response.json();
+                })
+                .then(data => {
+                    const contenedor = document.getElementById("contenedor-reservas");
+                    if (data.length === 0) {
+                        contenedor.innerHTML = '<div class="alerta">Aún no tenés reservas confirmadas. ¡Buscá tu próximo destino!</div>';
+                        return;
+                    }
+
+                    // Limpiamos el texto de "Cargando..."
+                    contenedor.innerHTML = '';
+                    
+                    // Iteramos sobre las reservas y armamos las tarjetas visuales
+                    data.forEach(reserva => {
+                        const tarjeta = document.createElement('div');
+                        tarjeta.style.border = "1px solid #ddd";
+                        tarjeta.style.padding = "1.5rem";
+                        tarjeta.style.borderRadius = "8px";
+                        tarjeta.style.backgroundColor = "#fff";
+                        
+                        // 1. Filtramos el estado para que se lea natural
+                        let estadoLimpio = reserva.estado;
+                        if (reserva.estado === 'pendiente_sena') {
+                            estadoLimpio = 'Pendiente de seña';
+                        }
+
+                        // 2. Acortamos la fecha (corta los últimos caracteres)
+                        let limiteCorto = reserva.fechaLimitePago ? reserva.fechaLimitePago.substring(0, 16) : '';
+                        
+                        // 3. Preparamos las alertas visuales y botones (CORREGIDO)
+                        let alertaSena = "";
+                        let botonPagar = "";
+                        if (reserva.estado === 'pendiente_sena') {
+                            alertaSena = `<p style="color: #d9534f; font-weight: bold; margin-bottom: 5px; margin-top: 15px;">
+                                            ⚠️ Límite para pagar la seña: ${limiteCorto}
+                                          </p>`;
+                            botonPagar = `<button onclick="abrirModalPago(${reserva.id || reserva.idReserva})" style="background-color: #f0ad4e; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px; font-weight: bold;">
+                                            Pagar Seña
+                                          </button>`;
+                        }
+
+                        // 4. Armamos el HTML de la tarjeta
+                        let idProp = reserva.idPropiedadFk || reserva.idPropiedad || 0;
+                        let idRes = reserva.idReserva || reserva.id || 0;
+                        
+                        // --- LÓGICA DE LOS 60 DÍAS (FRONTEND) ---
+                        let botonResena = "";
+                        if (reserva.fechaFinal) {
+                            const hoy = new Date();
+                            const fechaFin = new Date(reserva.fechaFinal);
+                            const milisegundosPorDia = 1000 * 60 * 60 * 24;
+                            const diferenciaDias = Math.floor((hoy - fechaFin) / milisegundosPorDia);
+                            
+                            if (diferenciaDias >= 0 && diferenciaDias <= 60) {
+                                botonResena = `<button onclick="abrirModalResena(${idRes}, ${idProp})" style="background-color: #4CAF50; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                                                ⭐ Dejar Reseña
+                                               </button>`;
                             }
+                        }
 
-                            // Limpiamos el texto de "Cargando..."
-                            contenedor.innerHTML = '';
-                            // Iteramos sobre las reservas y armamos las tarjetas visuales
-                            data.forEach(reserva => {
-                                const tarjeta = document.createElement('div');
-                                tarjeta.style.border = "1px solid #ddd";
-                                tarjeta.style.padding = "1.5rem";
-                                tarjeta.style.borderRadius = "8px";
-                                tarjeta.style.backgroundColor = "#fff";
-                                // Armamos el HTML interno de cada reserva con las claves exactas del JSON
-                                // Armamos el HTML interno de cada reserva con las claves exactas del JSON
-                                // Armamos el HTML interno de cada reserva con las claves exactas del JSON
-                               console.log("Datos de la reserva:", reserva);
+                        tarjeta.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <h3 style="margin-top: 0; color: #333;">Detalles de la estadía</h3>
+                                ${botonResena}
+                            </div>
+                            
+                            <p style="margin-bottom: 0.5rem;">
+                                <strong>Propiedad:</strong> ${reserva.calle} ${reserva.altura}, ${reserva.ciudad}
+                            </p>
+                            
+                            <p style="margin-bottom: 0.2rem;"><strong>Desde:</strong> ${reserva.fechaInicio}</p>
+                            <p style="margin-bottom: 0.5rem;"><strong>Hasta:</strong> ${reserva.fechaFinal}</p>
+                            
+                            <p style="margin-bottom: 0.5rem;"><strong>Estado:</strong> ${estadoLimpio}</p>
+                            <p style="color: #e55e30; font-weight: bold; margin: 0;">
+                                Monto total: $${reserva.montoTotal}
+                            </p>
+                            
+                            ${alertaSena}
+                            ${botonPagar}
+                        `;
 
-        // 1. Filtramos el estado para que se lea natural
-        let estadoLimpio = reserva.estado;
-        if (reserva.estado === 'pendiente_sena') {
-            estadoLimpio = 'Pendiente de seña';
-        }
-
-        // 2. Acortamos la fecha (corta los últimos caracteres para borrar los segundos y el .0)
-        let limiteCorto = reserva.fechaLimitePago ? reserva.fechaLimitePago.substring(0, 16) : '';
-
-        // 3. Preparamos las alertas visuales
-        let alertaSena = "";
-        let botonPagar = "";
-
-        if (reserva.estado === 'pendiente_sena') {
-            alertaSena = `<p style="color: #d9534f; font-weight: bold; margin-bottom: 5px; margin-top: 15px;">
-                            ⚠️ Límite para pagar la seña: ${limiteCorto}
-                          </p>`;
-            botonPagar = `<button onclick="abrirModalPago(${reserva.id})" style="background-color: #f0ad4e; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px; font-weight: bold;">
-                            Pagar Seña
-                          </button>`;
-        }
-
-        // 4. Armamos el HTML (Cambiamos el título h3 para ocultar el ID)
-        tarjeta.innerHTML = `
-            <h3 style="margin-top: 0; color: #333;">Detalles de la estadía</h3>
+                        contenedor.appendChild(tarjeta);
+                    });
+                })
+                .catch(error => {
+                    document.getElementById("contenedor-reservas").innerHTML =
+                        '<div class="alerta alerta-error">Error al cargar las reservas. Asegurate de haber iniciado sesión.</div>';
+                    console.error(error);
+                });
+            }
             
-            <p style="margin-bottom: 0.5rem;">
-                <strong>Propiedad:</strong> ${reserva.calle} ${reserva.altura}, ${reserva.ciudad}
-            </p>
-            
-            <p style="margin-bottom: 0.2rem;"><strong>Desde:</strong> ${reserva.fechaInicio}</p>
-            <p style="margin-bottom: 0.5rem;"><strong>Hasta:</strong> ${reserva.fechaFinal}</p>
-            
-            <p style="margin-bottom: 0.5rem;"><strong>Estado:</strong> ${estadoLimpio}</p>
-            <p style="color: var(--brasa); font-weight: bold; margin: 0;">
-                Monto total: $${reserva.montoTotal}
-            </p>
-            ${alertaSena}
-            ${botonPagar}
-        `;
+            function abrirModalResena(idReserva, idPropiedad) {
+                document.getElementById("resena-id-reserva").value = idReserva;
+                document.getElementById("resena-id-propiedad").value = idPropiedad;
+                document.getElementById("modal-resena").style.display = "flex";
+            }
 
-        contenedor.appendChild(tarjeta);
-                            });
-                        })
-                        .catch(error => {
-                            document.getElementById("contenedor-reservas").innerHTML =
-                                    '<div class="alerta alerta-error">Error al cargar las reservas. Asegurate de haber iniciado sesión.</div>';
-                            console.error(error);
-                        });
+            function cerrarModalResena() {
+                document.getElementById("modal-resena").style.display = "none";
+                document.getElementById("form-resena").reset(); 
+            }
+
+            function enviarResena(evento) {
+                evento.preventDefault(); 
+                
+                const formulario = document.getElementById("form-resena");
+                const datos = new URLSearchParams(new FormData(formulario));
+                
+                fetch('resenas', {
+                    method: 'POST',
+                    body: datos
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        const cartel = document.getElementById("cartelExito");
+                        cartel.style.display = "block"; 
+                        setTimeout(() => {
+                            cartel.style.display = "none";
+                            location.reload(); 
+                        }, 3000);
+                        cerrarModalResena();
+                    } else {
+                        const cartelError = document.getElementById("cartelError");
+                        document.getElementById("textoError").innerText = "❌ " + data.error;
+                        cartelError.style.display = "block";
+                        setTimeout(() => {
+                            cartelError.style.display = "none";
+                        }, 4000);
+                        cerrarModalResena(); 
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    const cartelError = document.getElementById("cartelError");
+                    document.getElementById("textoError").innerText = "❌ Ocurrió un problema de conexión.";
+                    cartelError.style.display = "block";
+                    setTimeout(() => cartelError.style.display = "none", 4000);
+                    cerrarModalResena();
+                });
             }
         </script>
+
+        <!-- Modal oculto por defecto -->
+        <div id="modal-resena" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+            <div style="background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h3 style="margin-top: 0;">Calificá tu estadía</h3>
+
+                <form id="form-resena" onsubmit="enviarResena(event)">
+                    <!-- Variables invisibles para el backend -->
+                    <input type="hidden" id="resena-id-reserva" name="idReserva">
+                    <input type="hidden" id="resena-id-propiedad" name="idPropiedad">
+
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Puntuación</label>
+                        <select id="resena-calificacion" name="calificacion" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;" required>
+                            <option value="">Elegí una opción...</option>
+                            <option value="5">⭐⭐⭐⭐⭐ (Excelente)</option>
+                            <option value="4">⭐⭐⭐⭐ (Muy bueno)</option>
+                            <option value="3">⭐⭐⭐ (Bueno)</option>
+                            <option value="2">⭐⭐ (Regular)</option>
+                            <option value="1">⭐ (Malo)</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Comentario</label>
+                        <textarea id="resena-comentario" name="comentario" rows="4" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; resize: vertical;" placeholder="¿Cómo fue tu experiencia?" required></textarea>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" onclick="cerrarModalResena()" style="background: #ccc; color: #333; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                        <button type="submit" style="background: #e55e30; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">Publicar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </body>
 </html>

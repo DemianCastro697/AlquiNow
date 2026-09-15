@@ -17,6 +17,7 @@ public class Propiedad {
     private String ciudad;
     private String provincia;
     private String pais;
+    private Double promedioEstrellas;
 
     private BigDecimal precioPorNoche;
     private Integer metrosCuadrados;
@@ -161,5 +162,14 @@ public void setPiso(String piso) { this.piso = piso; }
 
     public void setHorasLimitePago(int horasLimitePago) {
         this.horasLimitePago = horasLimitePago;
+    }
+
+    // Métodos (ponelos al final del archivo)
+    public Double getPromedioEstrellas() {
+        return promedioEstrellas;
+    }
+
+    public void setPromedioEstrellas(Double promedioEstrellas) {
+        this.promedioEstrellas = promedioEstrellas;
     }
 }

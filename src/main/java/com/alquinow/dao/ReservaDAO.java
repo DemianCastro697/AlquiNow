@@ -22,12 +22,12 @@ public class ReservaDAO {
      * ID generado.
      */
     public int crear(Reserva r) throws SQLException {
-        String sqlReserva =
-            "INSERT INTO Reserva "
-            + "(ID_comprador_fk, ID_propiedad_fk, fecha_inicio, fecha_final, "
-            + " estado, monto_total, fecha_reserva, dias_cancelacion_aplicados, "
-            + " fecha_limite_cancelacion, fecha_limite_pago) "
-            + "VALUES (?, ?, ?, ?, ?, ?, CURDATE(), ?, ?, ?)";
+        String sqlReserva
+                = "INSERT INTO Reserva "
+                + "(ID_comprador_fk, ID_propiedad_fk, fecha_inicio, fecha_final, "
+                + " estado, monto_total, fecha_reserva, dias_cancelacion_aplicados, "
+                + " fecha_limite_cancelacion, fecha_limite_pago) "
+                + "VALUES (?, ?, ?, ?, ?, ?, CURDATE(), ?, ?, ?)";
 
         String sqlDisponibilidad
                 = "INSERT INTO Disponibilidad (ID_propiedad_fk, fecha, estado) VALUES (?, ?, 'Ocupado')";
@@ -46,14 +46,14 @@ public class ReservaDAO {
                 ps.setDate(4, r.getFechaFinal());
                 ps.setString(5, r.getEstado() == null ? "pendiente_sena" : r.getEstado()); // Cambiamos el estado inicial
                 ps.setBigDecimal(6, r.getMontoTotal());
-                
+
                 if (r.getDiasCancelacionAplicados() == null) {
                     ps.setNull(7, java.sql.Types.INTEGER);
                 } else {
                     ps.setInt(7, r.getDiasCancelacionAplicados());
                 }
                 ps.setDate(8, r.getFechaLimiteCancelacion());
-                
+
                 // Enviamos la hora límite exacta calculada
                 ps.setTimestamp(9, r.getFechaLimitePago());
 
@@ -142,6 +142,61 @@ public class ReservaDAO {
             ps.setInt(2, idReserva);
             return ps.executeUpdate() > 0;
         }
+    }
+
+    public Reserva buscarPorId(int idReserva) {
+        Reserva reserva = null;
+        // Ajustá "id_reserva" al nombre exacto de la columna de ID en tu tabla de MySQL
+        String sql = "SELECT * FROM reserva WHERE id_reserva = ?";
+
+        try (Connection con = Conexion.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idReserva);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    reserva = new Reserva();
+                    reserva.setIdReserva(rs.getInt("id_reserva"));
+
+                    // Ajustá "fecha_final" al nombre exacto de la columna de fecha en MySQL
+                    reserva.setFechaFinal(rs.getDate("fecha_final"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return reserva;
+    }
+
+    public List<Reserva> obtenerReservasFinalizadasHoy() {
+        List<Reserva> reservas = new ArrayList<>();
+
+        // Unimos la tabla reserva con Usuario para extraer el mail del inquilino
+        String sql = "SELECT r.*, u.mail "
+                + "FROM reserva r "
+                + "JOIN Usuario u ON r.id_comprador_fk = u.ID_usuario "
+                + "WHERE r.fecha_final = CURDATE()";
+
+        try (Connection con = Conexion.getConexion(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Reserva reserva = new Reserva();
+
+                // Mapeo de datos básicos
+                reserva.setIdReserva(rs.getInt("id_reserva"));
+                reserva.setIdCompradorFk(rs.getInt("id_comprador_fk"));
+                reserva.setIdPropiedadFk(rs.getInt("id_propiedad_fk"));
+                reserva.setFechaInicio(rs.getDate("fecha_inicio"));
+                reserva.setFechaFinal(rs.getDate("fecha_final"));
+
+                // Guardamos el mail para que el motor de envíos sepa a dónde escribir
+                reserva.setCorreoComprador(rs.getString("mail"));
+
+                reservas.add(reserva);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return reservas;
     }
 
     private Reserva mapear(ResultSet rs) throws SQLException {

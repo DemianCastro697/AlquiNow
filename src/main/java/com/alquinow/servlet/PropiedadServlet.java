@@ -191,8 +191,9 @@ public class PropiedadServlet extends HttpServlet {
             + "\"precioPorNoche\":" + p.getPrecioPorNoche() + ","
             + "\"metrosCuadrados\":" + p.getMetrosCuadrados() + ","
             + "\"cantPersonas\":" + p.getCantPersonas() + ","
-            + "\"piso\":\"" + escapar(p.getPiso()) + "\"," // <-- ACÁ AGREGAMOS LAS COMILLAS Y EL ESCAPAR
-            + "\"descripcion\":\"" + escapar(p.getDescripcion()) + "\"" // <-- ACÁ LE SACAMOS LA COMA QUE SOBRABA
+            + "\"piso\":\"" + escapar(p.getPiso()) + "\","
+            + "\"descripcion\":\"" + escapar(p.getDescripcion()) + "\","
+            + "\"promedioEstrellas\":" + (p.getPromedioEstrellas() != null ? p.getPromedioEstrellas() : 0.0)
             + "}";
     }
 

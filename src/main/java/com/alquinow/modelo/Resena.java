@@ -10,6 +10,7 @@ public class Resena {
     private int calificacion;
     private String comentario;
     private Timestamp fecha;
+    private int idReservaFk;
 
     public Resena() {
     }
@@ -43,4 +44,13 @@ public class Resena {
 
     public Timestamp getFecha() { return fecha; }
     public void setFecha(Timestamp fecha) { this.fecha = fecha; }
+    
+    public int getIdReservaFk() {
+    return idReservaFk;
 }
+
+public void setIdReservaFk(int idReservaFk) {
+    this.idReservaFk = idReservaFk;
+}
+}
+

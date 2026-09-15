@@ -1,196 +1,208 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlquiNow — Alquileres temporales</title>
-  <link rel="stylesheet" href="css/estilos.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AlquiNow — Alquileres temporales</title>
+        <link rel="stylesheet" href="css/estilos.css">
+    </head>
+    <body>
 
-  <header class="nav">
-    <div class="logo">Alqui<span>Now</span></div>
-    <nav class="nav-links">
-      <a href="index.html">Buscar</a>
-      <!-- El botón de favoritos se quitó de acá para que no lo vean los no logueados -->
-      <a href="login.html">Ingresar</a>
-      <a href="registro.html">Crear cuenta</a>
-    </nav>
-  </header>
+        <header class="nav">
+            <div class="logo">Alqui<span>Now</span></div>
+            <nav class="nav-links">
+                <a href="index.html">Buscar</a>
+                <a href="login.html">Ingresar</a>
+                <a href="registro.html">Crear cuenta</a>
+            </nav>
+        </header>
 
-  <section class="hero">
-    <h1>Tu próxima estadía, <span>a un clic</span></h1>
-    <p>Encontrá departamentos y casas para alquilar por noche en toda Argentina.</p>
-  </section>
+        <section class="hero">
+            <h1>Tu próxima estadía, <span>a un clic</span></h1>
+            <p>Encontrá departamentos y casas para alquilar por noche en toda Argentina.</p>
+        </section>
 
-  <main class="contenedor">
+        <main class="contenedor">
 
-    <!-- Filtros de búsqueda -->
-    <div class="filtros">
-      <div class="campo">
-        <label for="f-ciudad">Ciudad</label>
-        <input type="text" id="f-ciudad" placeholder="Ej: Neuquén">
-      </div>
-      <div class="campo">
-        <label for="f-provincia">Provincia</label>
-        <select name="provincia" id="provincia">
-    <option value="">Todas las provincias</option>
-    <option value="Buenos Aires">Buenos Aires</option>
-    <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
-    <option value="Catamarca">Catamarca</option>
-    <option value="Chaco">Chaco</option>
-    <option value="Chubut">Chubut</option>
-    <option value="Córdoba">Córdoba</option>
-    <option value="Corrientes">Corrientes</option>
-    <option value="Entre Ríos">Entre Ríos</option>
-    <option value="Formosa">Formosa</option>
-    <option value="Jujuy">Jujuy</option>
-    <option value="La Pampa">La Pampa</option>
-    <option value="La Rioja">La Rioja</option>
-    <option value="Mendoza">Mendoza</option>
-    <option value="Misiones">Misiones</option>
-    <option value="Neuquén">Neuquén</option>
-    <option value="Río Negro">Río Negro</option>
-    <option value="Salta">Salta</option>
-    <option value="San Juan">San Juan</option>
-    <option value="San Luis">San Luis</option>
-    <option value="Santa Cruz">Santa Cruz</option>
-    <option value="Santa Fe">Santa Fe</option>
-    <option value="Santiago del Estero">Santiago del Estero</option>
-    <option value="Tierra del Fuego">Tierra del Fuego</option>
-    <option value="Tucumán">Tucumán</option>
-</select>
-      </div>
-      <div class="campo">
-        <label for="f-precio">Precio máx / noche</label>
-        <input type="number" id="f-precio" placeholder="$" min="1">
-      </div>
-      <div class="campo">
-        <label for="f-personas">Personas (mín)</label>
-        <input type="number" id="f-personas" placeholder="2" min="1">
-      </div>
-      <button class="btn" onclick="buscar()">Buscar</button>
-    </div>
+            <!-- Filtros de búsqueda -->
+            <div class="filtros">
+                <div class="campo">
+                    <label for="f-ciudad">Ciudad</label>
+                    <input type="text" id="f-ciudad" placeholder="Ej: Neuquén">
+                </div>
+                <div class="campo">
+                    <label for="f-provincia">Provincia</label>
+                    <select name="provincia" id="provincia">
+                        <option value="">Todas las provincias</option>
+                        <option value="Buenos Aires">Buenos Aires</option>
+                        <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
+                        <option value="Catamarca">Catamarca</option>
+                        <option value="Chaco">Chaco</option>
+                        <option value="Chubut">Chubut</option>
+                        <option value="Córdoba">Córdoba</option>
+                        <option value="Corrientes">Corrientes</option>
+                        <option value="Entre Ríos">Entre Ríos</option>
+                        <option value="Formosa">Formosa</option>
+                        <option value="Jujuy">Jujuy</option>
+                        <option value="La Pampa">La Pampa</option>
+                        <option value="La Rioja">La Rioja</option>
+                        <option value="Mendoza">Mendoza</option>
+                        <option value="Misiones">Misiones</option>
+                        <option value="Neuquén">Neuquén</option>
+                        <option value="Río Negro">Río Negro</option>
+                        <option value="Salta">Salta</option>
+                        <option value="San Juan">San Juan</option>
+                        <option value="San Luis">San Luis</option>
+                        <option value="Santa Cruz">Santa Cruz</option>
+                        <option value="Santa Fe">Santa Fe</option>
+                        <option value="Santiago del Estero">Santiago del Estero</option>
+                        <option value="Tierra del Fuego">Tierra del Fuego</option>
+                        <option value="Tucumán">Tucumán</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="f-precio">Precio máx / noche</label>
+                    <input type="number" id="f-precio" placeholder="$" min="1">
+                </div>
+                <div class="campo">
+                    <label for="f-personas">Personas (mín)</label>
+                    <input type="number" id="f-personas" placeholder="2" min="1">
+                </div>
+                <button class="btn" onclick="buscar()">Buscar</button>
+            </div>
 
-    <!-- Resultados -->
-    <h2 style="margin-top: 2rem; margin-bottom: 1rem;">Propiedades destacadas</h2>
-    
-    <!-- Mantenemos tu ID "resultados" original -->
-    <div id="resultados" class="grid" style="gap: 1.5rem;">
-        <p>Cargando catálogo...</p>
-    </div>
-  </main> 
+            <!-- Resultados -->
+            <h2 style="margin-top: 2rem; margin-bottom: 1rem;">Propiedades destacadas</h2>
 
-  <!-- 1. Cargamos el detector de sesiones con el forzador de caché (?v=3) -->
-  <script src="js/session.js?v=3"></script>
-  
-  <!-- 2. Lógica para cargar el catálogo y el buscador dinámico -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      cargarPropiedades();
-    });
+            <div id="resultados" class="grid" style="gap: 1.5rem;">
+                <p>Cargando catálogo...</p>
+            </div>
+        </main> 
 
-    function cargarPropiedades(filtros = '') {
-      fetch('propiedades' + filtros) 
-        .then(response => {
-          if (!response.ok) throw new Error("Error en el servidor");
-          return response.json();
-        })
-        .then(data => {
-          const contenedor = document.getElementById("resultados"); 
-          
-          if (data.length === 0) {
-            contenedor.innerHTML = '<div class="alerta" style="grid-column: 1 / -1;">No encontramos propiedades que coincidan con tu búsqueda.</div>';
-            return;
-          }
+        <!-- Cargamos el detector de sesiones -->
+        <script src="js/session.js?v=3"></script>
 
-          contenedor.innerHTML = ''; 
+        <!-- Lógica para cargar el catálogo y el buscador dinámico -->
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                cargarPropiedades();
+            });
 
-          data.forEach(prop => {
-            const tarjeta = document.createElement('div');
-            tarjeta.style.border = "1px solid #ddd";
-            tarjeta.style.borderRadius = "8px";
-            tarjeta.style.padding = "1.5rem";
-            tarjeta.style.backgroundColor = "#fff";
+            function cargarPropiedades(filtros = '') {
+                fetch('propiedades' + filtros)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Error en el servidor");
+                        return response.json();
+                    })
+                    .then(data => {
+                        const contenedor = document.getElementById("resultados");
+                        
+                        if (data.length === 0) {
+                            contenedor.innerHTML = '<div class="alerta" style="grid-column: 1 / -1;">No encontramos propiedades que coincidan con tu búsqueda.</div>';
+                            return;
+                        }
 
-            tarjeta.innerHTML = `
-              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <h3 style="margin-top: 0; color: #333;">${prop.calle} ${prop.altura}</h3>
-                <button onclick="toggleFavorito(${prop.id}, this)" class="btn-favorito" data-estado="vacio" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0;">🤍</button>
-              </div>
-              <p style="color: var(--gris); font-size: 0.9rem; margin-bottom: 1rem;">${prop.ciudad}, ${prop.provincia}</p>
-              
-              <p style="margin-bottom: 0.5rem;">${prop.descripcion}</p>
-              <p style="font-size: 0.9rem;"><strong>Capacidad:</strong> ${prop.cantPersonas} personas</p>
-              
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
-                <p style="color: var(--brasa); font-weight: bold; font-size: 1.2rem; margin: 0;">
-                  $${prop.precioPorNoche} <span style="font-size: 0.8rem; font-weight: normal; color: #666;">/ noche</span>
-                </p>
-                
-                <a href="reservar.html?id=${prop.id}" class="btn">Reservar</a>
-              </div>
-            `;
-            
-            contenedor.appendChild(tarjeta);
-          });
-        })
-        .catch(error => {
-          document.getElementById("resultados").innerHTML = 
-            '<div class="alerta alerta-error" style="grid-column: 1 / -1;">Error de conexión.</div>';
-          console.error(error);
-        });
-    }
+                        contenedor.innerHTML = '';
+                        
+                        data.forEach(prop => {
+                            const tarjeta = document.createElement('div');
+                            
+                            const htmlEstrellas = prop.promedioEstrellas > 0
+                                ? `<span style="color: #f5c518; font-weight: bold; font-size: 1.1rem;">⭐ ${prop.promedioEstrellas}</span>`
+                                : `<span style="background-color: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #666;">Nuevo</span>`; 
+                            
+                            tarjeta.style.border = "1px solid #ddd";
+                            tarjeta.style.borderRadius = "8px";
+                            tarjeta.style.padding = "1.5rem";
+                            tarjeta.style.backgroundColor = "#fff";
+                            
+                            tarjeta.innerHTML = `
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                    
+                                    <!-- Título y estrellas -->
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <h3 style="margin-top: 0; margin-bottom: 0; color: #333;">${prop.calle} ${prop.altura}</h3>
+                                        ${htmlEstrellas}
+                                    </div>
+                                    
+                                    <!-- Botón de favoritos -->
+                                    <button onclick="toggleFavorito(${prop.id}, this)" class="btn-favorito" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">🤍</button>
+                                </div>
+                                
+                                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">${prop.ciudad}, ${prop.provincia}</p>
+                                
+                                <p style="margin-bottom: 0.5rem;">${prop.descripcion}</p>
+                                <p style="font-size: 0.9rem;"><strong>Capacidad:</strong> ${prop.cantPersonas} personas</p>
+                                
+                                <!-- Precio y Botón de reservar -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                                    <p style="color: #e55e30; font-weight: bold; font-size: 1.2rem; margin: 0;">
+                                        $${prop.precioPorNoche} <span style="font-size: 0.8rem; font-weight: normal; color: #666;">/ noche</span>
+                                    </p>
+                                    <button onclick="window.location.href='propiedad.html?id=${prop.id}'" style="background-color: #e55e30; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                                        Reservar
+                                    </button>
+                                </div>
+                            `;
+                            
+                            contenedor.appendChild(tarjeta);
+                        });
+                    })
+                    .catch(error => {
+                        document.getElementById("resultados").innerHTML = `<div class="alerta" style="grid-column: 1 / -1; text-align: center; color: red;">Error de conexión.</div>`;
+                        console.error(error);
+                    });
+            }
 
-    function buscar() {
-      const ciudad = document.getElementById("f-ciudad").value.trim();
-      const provincia = document.getElementById("f-provincia").value;
-      const precio = document.getElementById("f-precio").value;
-      const personas = document.getElementById("f-personas").value;
+            function buscar() {
+                const ciudad = document.getElementById("f-ciudad").value.trim();
+                const provincia = document.getElementById("f-provincia").value;
+                const precio = document.getElementById("f-precio").value;
+                const personas = document.getElementById("f-personas").value;
 
-      const params = new URLSearchParams();
-      if (ciudad) params.append("ciudad", ciudad);
-      if (provincia && provincia !== "") params.append("provincia", provincia);
-      if (precio) params.append("precioMax", precio);
-      if (personas) params.append("personas", personas);
+                const params = new URLSearchParams();
+                if (ciudad) params.append("ciudad", ciudad);
+                if (provincia && provincia !== "") params.append("provincia", provincia);
+                if (precio) params.append("precioMax", precio);
+                if (personas) params.append("personas", personas);
 
-      const queryString = params.toString() ? '?' + params.toString() : '';
-      cargarPropiedades(queryString);
-    }
+                const queryString = params.toString() ? '?' + params.toString() : '';
+                cargarPropiedades(queryString);
+            }
 
-    function toggleFavorito(idPropiedad, btnElement) {
-      const estadoActual = btnElement.getAttribute('data-estado');
-      const accion = estadoActual === 'vacio' ? 'agregar' : 'eliminar';
+            function toggleFavorito(idPropiedad, btnElement) {
+                const estadoActual = btnElement.getAttribute('data-estado');
+                const accion = estadoActual === 'vacio' ? 'agregar' : 'eliminar';
 
-      const params = new URLSearchParams();
-      params.append('idPropiedad', idPropiedad);
-      params.append('accion', accion);
+                const params = new URLSearchParams();
+                params.append('idPropiedad', idPropiedad);
+                params.append('accion', accion);
 
-      fetch('favorito', {
-          method: 'POST',
-          body: params
-      })
-      .then(response => {
-          if (response.status === 401) {
-              alert("Tenés que iniciar sesión para guardar favoritos.");
-              window.location.href = "login.html";
-              return null;
-          }
-          return response.text();
-      })
-      .then(texto => {
-          if (!texto) return; 
-          
-          if (texto.trim() === 'agregado') {
-              btnElement.innerText = '❤️'; 
-              btnElement.setAttribute('data-estado', 'lleno');
-          } else if (texto.trim() === 'eliminado') {
-              btnElement.innerText = '🤍'; 
-              btnElement.setAttribute('data-estado', 'vacio');
-          }
-      })
-      .catch(error => console.error("Error en favoritos:", error));
-    }
-  </script>
-</body>
+                fetch('favorito', {
+                    method: 'POST',
+                    body: params
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        alert("Tenés que iniciar sesión para guardar favoritos.");
+                        window.location.href = "login.html";
+                        return null;
+                    }
+                    return response.text();
+                })
+                .then(texto => {
+                    if (!texto) return;
+
+                    if (texto.trim() === 'agregado') {
+                        btnElement.innerText = '❤️';
+                        btnElement.setAttribute('data-estado', 'lleno');
+                    } else if (texto.trim() === 'eliminado') {
+                        btnElement.innerText = '🤍';
+                        btnElement.setAttribute('data-estado', 'vacio');
+                    }
+                })
+                .catch(error => console.error("Error en favoritos:", error));
+            }
+        </script>
+    </body>
 </html>

@@ -19,6 +19,7 @@ public class Reserva {
     private Date fechaReserva;
     private Integer diasCancelacionAplicados;
     private Date fechaLimiteCancelacion;
+    private String correoComprador;
 
     // Campo auxiliar para mostrar info de la propiedad en listados (no es columna)
     private String ciudadPropiedad;
@@ -113,21 +114,36 @@ public class Reserva {
     public void setCiudadPropiedad(String ciudadPropiedad) {
         this.ciudadPropiedad = ciudadPropiedad;
     }
-    
+
     // Nuevos atributos para mostrar en el frontend
     private String calle;
     private int altura;
     private String ciudad;
 
-    public String getCalle() { return calle; }
-    public void setCalle(String calle) { this.calle = calle; }
+    public String getCalle() {
+        return calle;
+    }
 
-    public int getAltura() { return altura; }
-    public void setAltura(int altura) { this.altura = altura; }
+    public void setCalle(String calle) {
+        this.calle = calle;
+    }
 
-    public String getCiudad() { return ciudad; }
-    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
-    
+    public int getAltura() {
+        return altura;
+    }
+
+    public void setAltura(int altura) {
+        this.altura = altura;
+    }
+
+    public String getCiudad() {
+        return ciudad;
+    }
+
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
+
     // Nuevo límite de tiempo para que el inquilino pague la seña
     private java.sql.Timestamp fechaLimitePago;
 
@@ -137,5 +153,13 @@ public class Reserva {
 
     public void setFechaLimitePago(java.sql.Timestamp fechaLimitePago) {
         this.fechaLimitePago = fechaLimitePago;
+    }
+
+    public String getCorreoComprador() {
+        return correoComprador;
+    }
+
+    public void setCorreoComprador(String correoComprador) {
+        this.correoComprador = correoComprador;
     }
 }

@@ -13,7 +13,7 @@ public class EmailUtil {
 
     // ⚠️ REEMPLAZÁ ESTOS DATOS POR LOS TUYOS
     private static final String MI_CORREO = "demiancastro697@gmail.com"; 
-    private static final String MI_PASS = "svbk keby yxhe zluf"; 
+    private static final String MI_PASS = "svbkkebyyxhezluf"; 
 
     public static void enviarCodigo(String correoDestino, String codigo) throws Exception {
         Properties props = new Properties();

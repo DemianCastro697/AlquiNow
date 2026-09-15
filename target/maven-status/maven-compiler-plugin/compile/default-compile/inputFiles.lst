@@ -16,11 +16,13 @@ C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet\LoginServlet.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet\MisFavoritosServlet.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet\PropiedadServlet.java
+C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet\RecordatorioListener.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet\RegistroServlet.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet\ResenaServlet.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet\ReservaServlet.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet\SessionServlet.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\servlet\VerificarServlet.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\util\Conexion.java
+C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\util\EmailService.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\util\EmailUtil.java
 C:\Users\estudiante\Documents\GitHub\AlquiNow\src\main\java\com\alquinow\util\Password.java

@@ -11,6 +11,7 @@ com\alquinow\dao\DisponibilidadDAO.class
 com\alquinow\modelo\Reserva.class
 com\alquinow\servlet\SessionServlet.class
 com\alquinow\modelo\Propiedad.class
+com\alquinow\util\EmailService.class
 com\alquinow\dao\ReservaDAO.class
 com\alquinow\servlet\LoginServlet.class
 com\alquinow\modelo\Resena.class
@@ -20,8 +21,10 @@ com\alquinow\dao\ResenaDAO.class
 com\alquinow\servlet\MisFavoritosServlet.class
 com\alquinow\util\Conexion.class
 com\alquinow\dao\PropiedadDAO.class
+com\alquinow\servlet\RecordatorioListener.class
 com\alquinow\util\EmailUtil.class
 com\alquinow\servlet\DisponibilidadServlet.class
+com\alquinow\util\EmailService$1.class
 com\alquinow\servlet\PropiedadServlet.class
 com\alquinow\modelo\ListaDeseos.class
 com\alquinow\servlet\ConvertirVendedorServlet.class
